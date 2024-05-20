@@ -1,13 +1,12 @@
 {
-    --------------------------------------------
-    Filename: AS7341-Demo.spin
-    Author:
-    Description:
-    Copyright (c) 2024
-    Started May 20, 2024
-    Updated May 20, 2024
-    See end of file for terms of use.
-    --------------------------------------------
+----------------------------------------------------------------------------------------------------
+    Filename:       AS7341-Demo.spin
+    Description:    Demo of the AS7341 driver
+    Author:         Jesse Burt
+    Started:        May 20, 2024
+    Updated:        May 20, 2024
+    Copyright (c) 2024 - See end of file for terms of use.
+----------------------------------------------------------------------------------------------------
 }
 
 CON
@@ -18,32 +17,18 @@ CON
 
 OBJ
 
-    cfg   : "boardcfg.flip"
-    ser   : "com.serial.terminal.ansi"
-    time  : "time"
-    i2c:    "com.i2c"
-    core:   "core.con.as7341"
+    cfg:    "boardcfg.flip"
+    ser:    "com.serial.terminal.ansi" | SER_BAUD=115_200
+    time:   "time"
+    sensor: "sensor.light.as7341" | SCL=28, SDA=29, I2C_FREQ=400_000
 
-
-con SL = $39 << 1
 
 PUB main() | id
 
     setup()
-    i2c.init_def(400_000)
-    time.msleep(30)
 
     repeat
-        i2c.start()
-        i2c.write(SL)
-        i2c.write($90)
-        i2c.start()
-        i2c.write(SL|1)
-        id := 0
-        i2c.rdblock_lsbf(@id, 3, i2c.NAK)
-        i2c.stop()
-        ser.pos_xy(0, 3)
-        ser.hexdump(@id, 0, 4, 3, 1)
+
 
 PUB setup()
 
@@ -51,6 +36,11 @@ PUB setup()
     time.msleep(30)
     ser.clear()
     ser.strln(@"Serial terminal started")
+
+    if ( sensor.start() )
+        ser.strln(@"AS7341 driver started")
+    else
+        ser.strln(@"AS7341 driver failed to start - halting")
 
 
 DAT

@@ -1,24 +1,29 @@
 {
-    --------------------------------------------
-    Filename: sensor.light.as7341.spin
-    Author:
-    Description:
-    Copyright (c) 2024
-    Started May 20, 2024
-    Updated May 20, 2024
-    See end of file for terms of use.
-    --------------------------------------------
+----------------------------------------------------------------------------------------------------
+    Filename:       sensor.light.as7341.spin
+    Description:    Driver for the ams AS7341 multi-spectral sensor
+    Author:         Jesse Burt
+    Started:        May 20, 2024
+    Updated:        May 20, 2024
+    Copyright (c) 2024 - See end of file for terms of use.
+----------------------------------------------------------------------------------------------------
 }
 
 CON
 
-    SLAVE_WR          = core#SLAVE_ADDR
-    SLAVE_RD          = core#SLAVE_ADDR|1
+    { default I/O configuration - these can be overridden by the parent object }
+    SCL             = 28
+    SDA             = 29
+    I2C_FREQ        = 100_000
 
-    DEF_SCL           = 28
-    DEF_SDA           = 29
-    DEF_HZ            = 100_000
-    I2C_MAX_FREQ      = core#I2C_MAX_FREQ
+
+    SLAVE_WR        = core.SLAVE_ADDR
+    SLAVE_RD        = core.SLAVE_ADDR|1
+
+    DEF_SCL         = 28
+    DEF_SDA         = 29
+    DEF_HZ          = 100_000
+    I2C_MAX_FREQ    = core.I2C_MAX_FREQ
 
 VAR
 
@@ -26,48 +31,55 @@ VAR
 OBJ
 
 { decide: Bytecode I2C engine, or PASM? Default is PASM if BC isn't specified }
-#ifdef XXXXX_I2C_BC
-    i2c : "com.i2c.nocog"                       ' BC I2C engine
+#ifdef AS7341_I2C_BC
+    i2c:    "com.i2c.nocog"                     ' BC I2C engine
 #else
-    i2c : "com.i2c"                             ' PASM I2C engine
+    i2c:    "com.i2c"                           ' PASM I2C engine
 #endif
-    core: "core.con.as7341.spin"       ' hw-specific low-level const's
-    time: "time"                                ' basic timing functions
+    core:   "core.con.as7341.spin"              ' AS7341-specific constants
+    time:   "time"                              ' basic timing functions
 
-PUB null{}
+
+PUB null()
 ' This is not a top-level object
 
-PUB start{}: status
+
+PUB start(): status
 ' Start using "standard" Propeller I2C pins and 100kHz
-    return startx(DEF_SCL, DEF_SDA, DEF_HZ)
+    return startx(SCL, SDA, I2C_FREQ)
+
 
 PUB startx(SCL_PIN, SDA_PIN, I2C_HZ): status
 ' Start using custom IO pins and I2C bus frequency
-    if (lookdown(SCL_PIN: 0..31) and lookdown(SDA_PIN: 0..31))
-        if (status := i2c.init(SCL_PIN, SDA_PIN, I2C_HZ))
-            time.usleep(core#T_POR)             ' wait for device startup
-            { one of the below }
-'            if (i2c.present(SLAVE_WR))          ' test device bus presence
-'            if (dev_id{} == core#DEVID_RESP)    ' validate device 
+    if ( lookdown(SCL_PIN: 0..31) and lookdown(SDA_PIN: 0..31) )
+        if ( status := i2c.init(SCL_PIN, SDA_PIN, I2C_HZ) )
+            time.usleep(core.T_POR)             ' wait for device startup
+            if ( dev_id() == core.DEVID_RESP )  ' validate device 
                 return
     ' if this point is reached, something above failed
     ' Re-check I/O pin assignments, bus speed, connections, power
     ' Lastly - make sure you have at least one free core/cog 
     return FALSE
 
-PUB stop{}
-' Stop the driver
-    i2c.deinit{}
 
-PUB defaults{}
+PUB stop()
+' Stop the driver
+    i2c.deinit()
+
+
+PUB defaults()
 ' Set factory defaults
 
-PUB dev_id{}: id
+
+PUB dev_id(): id
 ' Read device identification
     id := 0
+    readreg(core.ID, 1, @id)
 
-PUB reset{}
+
+PUB reset()
 ' Reset the device
+
 
 PRI readreg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 ' Read nr_bytes from the device into ptr_buff
@@ -75,20 +87,12 @@ PRI readreg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
         $00..$FF:
             cmd_pkt.byte[0] := SLAVE_WR
             cmd_pkt.byte[1] := reg_nr
-            i2c.start{}
+            i2c.start()
             i2c.wrblock_lsbf(@cmd_pkt, 2)
-            i2c.start{}
+            i2c.start()
             i2c.wr_byte(SLAVE_RD)
-
-' choose the block below appropriate to your device
-    ' write LSByte to MSByte
-            i2c.rdblock_lsbf(ptr_buff, nr_bytes, i2c#NAK)
-            i2c.stop{}
-    '
-
-    ' write MSByte to LSByte
             i2c.rdblock_msbf(ptr_buff, nr_bytes, i2c#NAK)
-            i2c.stop{}
+            i2c.stop()
     '
         other:                                  ' invalid reg_nr
             return
@@ -99,19 +103,10 @@ PRI writereg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
         $00..$FF:
             cmd_pkt.byte[0] := SLAVE_WR
             cmd_pkt.byte[1] := reg_nr
-            i2c.start{}
+            i2c.start()
             i2c.wrblock_lsbf(@cmd_pkt, 2)
-
-' choose the block below appropriate to your device
-    ' write LSByte to MSByte
-            i2c.wrblock_lsbf(ptr_buff, nr_bytes)
-            i2c.stop{}
-    '
-
-    ' write MSByte to LSByte
             i2c.wrblock_msbf(ptr_buff, nr_bytes)
-            i2c.stop{}
-    '
+            i2c.stop()
         other:
             return
 
