@@ -1,10 +1,10 @@
 {
 ----------------------------------------------------------------------------------------------------
-    Filename:       _
-    Description:    DEMO OBJECT TEMPLATE
+    Filename:       core.con.as7341.spin
+    Description:    AS7341-specific constants
     Author:         Jesse Burt
-    Started:        MON DAY, YEAR
-    Updated:        MON DAY, YEAR
+    Started:        May 20, 2024
+    Updated:        May 21, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -19,7 +19,33 @@ CON
     DEVID_RESP          = $24                   ' device ID expected response
 
 ' Register definitions
+    STAT                = $71
+    STAT_MASK           = $03
+        WAIT_SYNC       = 1
+        READY           = 0
+        READY_BIT       = (1 << READY)
+
+    ENABLE              = $80
+    ENABLE_MASK         = $5b
+        FDEN            = 6
+        FDEN_MASK       = (1 << FDEN) ^ ENABLE_MASK
+        SMUXEN          = 4
+        SMUXEN_MASK     = (1 << SMUXEN) ^ ENABLE_MASK
+        WEN             = 3
+        WEN_MASK        = (1 << WEN) ^ ENABLE_MASK
+        SP_EN           = 1
+        SP_EN_MASK      = (1 << SP_EN) ^ ENABLE_MASK
+        PON             = 0
+        PON_MASK        = (1 << PON) ^ ENABLE_MASK
+
     ID                  = $92
+
+    CH0_DATA            = $95
+    CH1_DATA            = $97
+    CH2_DATA            = $99
+    CH3_DATA            = $9b
+    CH4_DATA            = $9d
+    CH5_DATA            = $9f
 
     CFG0                = $a9
     CFG0_MASK           = $34
@@ -38,6 +64,8 @@ PUB null()
 
 DAT
 {
+Copyright 2024 Jesse Burt
+
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
 including without limitation the rights to use, copy, modify, merge, publish, distribute,

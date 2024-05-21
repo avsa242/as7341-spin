@@ -4,7 +4,7 @@
     Description:    Demo of the AS7341 driver
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 20, 2024
+    Updated:        May 21, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -23,10 +23,12 @@ OBJ
     sensor: "sensor.light.as7341" | SCL=28, SDA=29, I2C_FREQ=400_000
 
 
-PUB main() | id
+PUB main() | id, i
 
     setup()
 
+    sensor.powered(true)
+    sensor.opmode(sensor.SP_MEASURE_EN)
     repeat
 
 
@@ -45,6 +47,8 @@ PUB setup()
 
 DAT
 {
+Copyright 2024 Jesse Burt
+
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
 including without limitation the rights to use, copy, modify, merge, publish, distribute,

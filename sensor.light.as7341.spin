@@ -77,8 +77,66 @@ PUB dev_id(): id
     readreg(core.ID, 1, @id)
 
 
+CON
+
+    { sensor operating modes }
+    SP_MEASURE_DIS  = 0                         ' measurements disabled
+    SP_MEASURE_EN   = 1                         ' measurements enabled
+
+PUB opmode(md): c
+' Set device operating mode
+'   md:
+'       SP_MEASURE_DIS (0): disable spectral measurements
+'       SP_MEASURE_EN (1): enable spectral measurements
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.ENABLE, 1, @c)
+    if ( md )
+        md := (c & core.SP_EN_MASK) | ( ((md <> 0) & 1) << core.SP_EN )
+        writereg(core.ENABLE, 1, @md)
+    else
+        return ( ((c >> core.SP_EN) & 1) == 1 )
+
+PUB powered(p): c
+' Power up the sensor
+'   p:
+'       TRUE (non-zero values) or FALSE (0)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.ENABLE, 1, @c)
+    if ( p )
+        p := (c & core.PON_MASK) | ((p <> 0) & 1)
+        writereg(core.ENABLE, 1, @p)
+    else
+        return ( (c & 1) == 1 )
+
+
 PUB reset()
 ' Reset the device
+
+
+VAR
+
+    word _light_data[6]
+
+PUB rgbw_data(ptr_d)
+' Get sensor data into ptr_d
+'   Data format:
+'       TBD
+'   NOTE: This buffer must be at least 6 words in length
+    readreg(core.CH0_DATA, 12, @_light_data)
+    wordmove(ptr_d, @_light_data, 6)
+
+
+pub rgbw_data_rdy(): f
+' Flag indicating new sensor data ready
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.STAT, 1, @f)
+    return ( (f & core.READY_BIT) == 1 )
+
 
 
 con
@@ -135,7 +193,7 @@ PRI readreg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 PRI writereg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 ' Write nr_bytes to the device from ptr_buff
     case reg_nr
-        $60..$62, $66..$70, $72..$74
+        $60..$62, $66..$70, $72..$74:
             banksel(REGBANK_LOW)
         $80, $81, $83..$87, $93, $94, $a9, $aa, $ac, $af, $b1..$b3, ...
         $b5, $bd, $be, $ca, $cb, $cf, $d6..$d8, $da, $f9, $fa, $fc, $fe, $ff:
@@ -152,6 +210,8 @@ PRI writereg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 
 DAT
 {
+Copyright 2024 Jesse Burt
+
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
 including without limitation the rights to use, copy, modify, merge, publish, distribute,
