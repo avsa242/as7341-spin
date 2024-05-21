@@ -116,7 +116,8 @@ PRI readreg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
     case reg_nr                                 ' validate register num
         $60..$74:
             banksel(REGBANK_LOW)
-        $80..$ff:
+        $80, $81, $83..$87, $90..$a0, $a3, $a4, $a6, $a7, $a9, $aa, $ac, $af, $b1..$b3, ...
+        $b5, $bd, $be, $ca, $cb, $cf, $d6..$d8, $da, $db, $f9, $fa, $fc, $fd..$ff:
             banksel(REGBANK_HIGH)
         other:                                  ' invalid reg_nr
             return
@@ -127,16 +128,17 @@ PRI readreg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
     i2c.wrblock_lsbf(@cmd_pkt, 2)
     i2c.start()
     i2c.wr_byte(SLAVE_RD)
-    i2c.rdblock_msbf(ptr_buff, nr_bytes, i2c.NAK)
+    i2c.rdblock_lsbf(ptr_buff, nr_bytes, i2c.NAK)
     i2c.stop()
 
 
 PRI writereg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 ' Write nr_bytes to the device from ptr_buff
     case reg_nr
-        $60..$74:
+        $60..$62, $66..$70, $72..$74
             banksel(REGBANK_LOW)
-        $80..$ff:
+        $80, $81, $83..$87, $93, $94, $a9, $aa, $ac, $af, $b1..$b3, ...
+        $b5, $bd, $be, $ca, $cb, $cf, $d6..$d8, $da, $f9, $fa, $fc, $fe, $ff:
             banksel(REGBANK_HIGH)
         other:
             return
@@ -145,7 +147,7 @@ PRI writereg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
     cmd_pkt.byte[1] := reg_nr
     i2c.start()
     i2c.wrblock_lsbf(@cmd_pkt, 2)
-    i2c.wrblock_msbf(ptr_buff, nr_bytes)
+    i2c.wrblock_lsbf(ptr_buff, nr_bytes)
     i2c.stop()
 
 DAT
