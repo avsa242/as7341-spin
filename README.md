@@ -1,15 +1,14 @@
 # as7341-spin 
---------------
+-------------
 
-This is a P8X32A/Propeller, P2X8C4M64P/Propeller 2 [driver] object for ____.
+This is a P8X32A/Propeller, P2X8C4M64P/Propeller 2 driver object for the ams AS7341
 
 **IMPORTANT**: This software is meant to be used with the [spin-standard-library](https://github.com/avsa242/spin-standard-library) (P8X32A) or [p2-spin-standard-library](https://github.com/avsa242/p2-spin-standard-library) (P2X8C4M64P). Please install the applicable library first before attempting to use this code, otherwise you will be missing several files required to build the project.
 
 
 ## Salient Features
 
-* Feature 1
-* Feature 2
+* I2C connection at up to 400kHz
 
 
 ## Requirements
@@ -26,7 +25,7 @@ P2/SPIN2:
 | Processor | Language | Compiler               | Backend      | Status                |
 |-----------|----------|------------------------|--------------|-----------------------|
 | P1        | SPIN1    | FlexSpin (6.9.4)       | Bytecode     | OK                    |
-| P1        | SPIN1    | FlexSpin (6.9.4)       | Native/PASM  | OK                    |
+| P1        | SPIN1    | FlexSpin (6.9.4)       | Native/PASM  | Build OK, runtime bad |
 | P2        | SPIN2    | FlexSpin (6.9.4)       | NuCode       | Not yet implemented   |
 | P2        | SPIN2    | FlexSpin (6.9.4)       | Native/PASM2 | Not yet implemented   |
 
@@ -36,5 +35,4 @@ P2/SPIN2:
 ## Limitations
 
 * Very early in development - may malfunction, or outright fail to build
-* Limitation 2
 
