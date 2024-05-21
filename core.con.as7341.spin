@@ -1,26 +1,36 @@
 {
-    --------------------------------------------
-    Filename: core.con.as7341.spin
-    Author:
-    Description:
-    Copyright (c) 2024
-    Started MMMM DDDD, YYYY
-    Updated MMMM DDDD, YYYY
-    See end of file for terms of use.
-    --------------------------------------------
+----------------------------------------------------------------------------------------------------
+    Filename:       _
+    Description:    DEMO OBJECT TEMPLATE
+    Author:         Jesse Burt
+    Started:        MON DAY, YEAR
+    Updated:        MON DAY, YEAR
+    Copyright (c) 2024 - See end of file for terms of use.
+----------------------------------------------------------------------------------------------------
 }
 
 CON
 
 ' I2C Configuration
-    I2C_MAX_FREQ    = 400_000                   ' device max I2C bus freq
-    SLAVE_ADDR      = $39 << 1                  ' 7-bit format slave address
-    T_POR           = 0                         ' startup time (usecs)
+    I2C_MAX_FREQ        = 400_000               ' device max I2C bus freq
+    SLAVE_ADDR          = $39 << 1              ' 7-bit format slave address
+    T_POR               = 0                     ' startup time (usecs)
 
-    DEVID_RESP      = $24                       ' device ID expected response
+    DEVID_RESP          = $24                   ' device ID expected response
 
 ' Register definitions
-    ID              = $92
+    ID                  = $92
+
+    CFG0                = $a9
+    CFG0_MASK           = $34
+        LOW_POWER       = 5
+        LOW_POWER_MASK  = (1 << LOW_POWER) ^ CFG0_MASK
+        REG_BANK        = 4
+        REG_BANK_MASK   = (1 << REG_BANK) ^ CFG0_MASK
+        REG_BANK_LO     = (1 << REG_BANK)
+        REG_BANK_HI     = (0 << REG_BANK)
+        WLONG           = 2
+        WLONG_MASK      = (1 << WLONG) ^ CFG0_MASK
 
 
 PUB null()

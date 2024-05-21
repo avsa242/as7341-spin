@@ -81,35 +81,72 @@ PUB reset()
 ' Reset the device
 
 
+con
+
+    REGBANK_LOW     = 0
+    REGBANK_HIGH    = 1
+
+PRI banksel(b) | tmp
+' Select register bank
+'   REGBANK_LOW (0): access registers $60..$74
+'   REGBANK_HIGH (1): access registers $80..$ff
+    tmp := 0
+    i2c.start()
+    i2c.write(SLAVE_WR)
+    i2c.write(core.CFG0)
+    i2c.start()
+    i2c.write(SLAVE_RD)
+    tmp := i2c.read(i2c.NAK)
+    i2c.stop()
+
+    if ( b == REGBANK_HIGH )
+        tmp &= core.REG_BANK_MASK
+    elseif ( b == REGBANK_LOW )
+        tmp |= core.REG_BANK_LO
+
+    i2c.start()
+    i2c.write(SLAVE_WR)
+    i2c.write(core.CFG0)
+    i2c.write(tmp)
+    i2c.stop()
+
+
 PRI readreg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 ' Read nr_bytes from the device into ptr_buff
     case reg_nr                                 ' validate register num
-        $00..$FF:
-            cmd_pkt.byte[0] := SLAVE_WR
-            cmd_pkt.byte[1] := reg_nr
-            i2c.start()
-            i2c.wrblock_lsbf(@cmd_pkt, 2)
-            i2c.start()
-            i2c.wr_byte(SLAVE_RD)
-            i2c.rdblock_msbf(ptr_buff, nr_bytes, i2c#NAK)
-            i2c.stop()
-    '
+        $60..$74:
+            banksel(REGBANK_LOW)
+        $80..$ff:
+            banksel(REGBANK_HIGH)
         other:                                  ' invalid reg_nr
             return
+
+    cmd_pkt.byte[0] := SLAVE_WR
+    cmd_pkt.byte[1] := reg_nr
+    i2c.start()
+    i2c.wrblock_lsbf(@cmd_pkt, 2)
+    i2c.start()
+    i2c.wr_byte(SLAVE_RD)
+    i2c.rdblock_msbf(ptr_buff, nr_bytes, i2c.NAK)
+    i2c.stop()
+
 
 PRI writereg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 ' Write nr_bytes to the device from ptr_buff
     case reg_nr
-        $00..$FF:
-            cmd_pkt.byte[0] := SLAVE_WR
-            cmd_pkt.byte[1] := reg_nr
-            i2c.start()
-            i2c.wrblock_lsbf(@cmd_pkt, 2)
-            i2c.wrblock_msbf(ptr_buff, nr_bytes)
-            i2c.stop()
+        $60..$74:
+            banksel(REGBANK_LOW)
+        $80..$ff:
+            banksel(REGBANK_HIGH)
         other:
             return
 
+    cmd_pkt.byte[0] := SLAVE_WR
+    cmd_pkt.byte[1] := reg_nr
+    i2c.start()
+    i2c.wrblock_lsbf(@cmd_pkt, 2)
+    i2c.wrblock_msbf(ptr_buff, nr_bytes)
+    i2c.stop()
 
 DAT
 {
