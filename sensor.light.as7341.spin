@@ -80,17 +80,33 @@ PUB dev_id(): id
 PUB flicker_detection_enabled(en=-2): c
 ' Enable flicker detection
 '   en:
-'       TRUE (non-zero values): enabled
+'       TRUE (positive values): enabled
 '       FALSE (0): disabled
 '   Returns:
 '       current setting, if called with other values
     c := 0
     readreg(core.ENABLE, 1, @c)
-    if ( en )
+    if ( en > 0 )
         en := (c & core.FDEN_MASK) | ( ((en <> 0) & 1) << core.FDEN )
         writereg(core.ENABLE, 1, @en)
     else
-        return ( ((en >> core.FDEN) & 1) == 1 )
+        return ( ((c >> core.FDEN) & 1) == 1 )
+
+
+PUB led_enabled(en=-2): c
+' Enable control of external LED
+'   en:
+'       TRUE (positive values): enabled
+'       FALSE (0): disabled
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CONFIG, 1, @c)
+    if ( en > 0 )
+        en := (c & core.LED_SEL_MASK) | ( ((en <> 0) & 1) << core.LED_SEL )
+        writereg(core.CONFIG, 1, @en)
+    else
+        return ( ((c >> core.LED_SEL) & 1) == 1 )
 
 
 CON
@@ -108,7 +124,7 @@ PUB opmode(md=-2): c
 '       current setting, if called with other values
     c := 0
     readreg(core.ENABLE, 1, @c)
-    if ( md )
+    if ( md == SP_MEASURE_EN )
         md := (c & core.SP_EN_MASK) | ( ((md <> 0) & 1) << core.SP_EN )
         writereg(core.ENABLE, 1, @md)
     else
@@ -117,12 +133,12 @@ PUB opmode(md=-2): c
 PUB powered(p=-2): c
 ' Power up the sensor
 '   p:
-'       TRUE (non-zero values) or FALSE (0)
+'       TRUE (positive values) or FALSE (0)
 '   Returns:
 '       current setting, if called with other values
     c := 0
     readreg(core.ENABLE, 1, @c)
-    if ( p )
+    if ( p > 0 )
         p := (c & core.PON_MASK) | ((p <> 0) & 1)
         writereg(core.ENABLE, 1, @p)
     else
