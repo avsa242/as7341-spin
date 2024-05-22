@@ -87,7 +87,7 @@ PUB flicker_detection_enabled(en=-2): c
     c := 0
     readreg(core.ENABLE, 1, @c)
     if ( en )
-        en := (en & core.FDEN_MASK) | ( ((en <> 0) & 1) << core.FDEN )
+        en := (c & core.FDEN_MASK) | ( ((en <> 0) & 1) << core.FDEN )
         writereg(core.ENABLE, 1, @en)
     else
         return ( ((en >> core.FDEN) & 1) == 1 )
@@ -149,7 +149,7 @@ PUB rgbw_data(ptr_d=0)
         wordmove(ptr_d, @_light_data, 6)
 
 
-pub rgbw_data_rdy(): f
+PUB rgbw_data_rdy(): f
 ' Flag indicating new sensor data ready
 '   Returns: TRUE (-1) or FALSE (0)
     f := 0
