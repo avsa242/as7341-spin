@@ -4,7 +4,7 @@
     Description:    Demo of the AS7341 driver
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 21, 2024
+    Updated:        May 22, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -23,6 +23,11 @@ OBJ
     sensor: "sensor.light.as7341" | SCL=28, SDA=29, I2C_FREQ=400_000
 
 
+VAR
+
+    word ldata[6]
+
+
 PUB main() | id, i
 
     setup()
@@ -30,6 +35,11 @@ PUB main() | id, i
     sensor.powered(true)
     sensor.opmode(sensor.SP_MEASURE_EN)
     repeat
+        repeat until sensor.rgbw_data_rdy()
+        sensor.rgbw_data(@ldata)
+        repeat i from 0 to 5
+            ser.pos_xy(0, 4+i)
+            ser.puthexs(ldata[i], 8)
 
 
 PUB setup()

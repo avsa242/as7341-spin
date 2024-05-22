@@ -4,7 +4,7 @@
     Description:    Driver for the ams AS7341 multi-spectral sensor
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 20, 2024
+    Updated:        May 22, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -77,13 +77,29 @@ PUB dev_id(): id
     readreg(core.ID, 1, @id)
 
 
+PUB flicker_detection_enabled(en=-2): c
+' Enable flicker detection
+'   en:
+'       TRUE (non-zero values): enabled
+'       FALSE (0): disabled
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.ENABLE, 1, @c)
+    if ( en )
+        en := (en & core.FDEN_MASK) | ( ((en <> 0) & 1) << core.FDEN )
+        writereg(core.ENABLE, 1, @en)
+    else
+        return ( ((en >> core.FDEN) & 1) == 1 )
+
+
 CON
 
     { sensor operating modes }
     SP_MEASURE_DIS  = 0                         ' measurements disabled
     SP_MEASURE_EN   = 1                         ' measurements enabled
 
-PUB opmode(md): c
+PUB opmode(md=-2): c
 ' Set device operating mode
 '   md:
 '       SP_MEASURE_DIS (0): disable spectral measurements
@@ -98,7 +114,7 @@ PUB opmode(md): c
     else
         return ( ((c >> core.SP_EN) & 1) == 1 )
 
-PUB powered(p): c
+PUB powered(p=-2): c
 ' Power up the sensor
 '   p:
 '       TRUE (non-zero values) or FALSE (0)
@@ -121,13 +137,16 @@ VAR
 
     word _light_data[6]
 
-PUB rgbw_data(ptr_d)
-' Get sensor data into ptr_d
+PUB rgbw_data(ptr_d=0)
+' Get sensor data
+'   ptr_d (optional):
+'       pointer to 6-word buffer to copy data to
 '   Data format:
 '       TBD
 '   NOTE: This buffer must be at least 6 words in length
     readreg(core.CH0_DATA, 12, @_light_data)
-    wordmove(ptr_d, @_light_data, 6)
+    if ( ptr_d )
+        wordmove(ptr_d, @_light_data, 6)
 
 
 pub rgbw_data_rdy(): f
