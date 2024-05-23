@@ -77,6 +77,14 @@ PUB dev_id(): id
     readreg(core.ID, 1, @id)
 
 
+PUB fifo_flush() | tmp
+' Flush FIFO, clear interrupt, overflow status and level
+    tmp := 0
+    readreg(core.CONTROL, 1, @tmp)
+    tmp |= (1 << core.FIFO_CLR)
+    writereg(core.CONTROL, 1, @tmp)
+
+
 PUB flicker_detection_enabled(en=-2): c
 ' Enable flicker detection
 '   en:
