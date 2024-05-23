@@ -4,7 +4,7 @@
     Description:    Driver for the ams AS7341 multi-spectral sensor
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 22, 2024
+    Updated:        May 23, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -80,13 +80,13 @@ PUB dev_id(): id
 PUB flicker_detection_enabled(en=-2): c
 ' Enable flicker detection
 '   en:
-'       TRUE (positive values): enabled
+'       TRUE (-1 or positive values): enabled
 '       FALSE (0): disabled
 '   Returns:
 '       current setting, if called with other values
     c := 0
     readreg(core.ENABLE, 1, @c)
-    if ( en > 0 )
+    if ( en => true )
         en := (c & core.FDEN_MASK) | ( ((en <> 0) & 1) << core.FDEN )
         writereg(core.ENABLE, 1, @en)
     else
@@ -96,13 +96,13 @@ PUB flicker_detection_enabled(en=-2): c
 PUB led_enabled(en=-2): c
 ' Enable control of external LED
 '   en:
-'       TRUE (positive values): enabled
+'       TRUE (-1 or positive values): enabled
 '       FALSE (0): disabled
 '   Returns:
 '       current setting, if called with other values
     c := 0
     readreg(core.CONFIG, 1, @c)
-    if ( en > 0 )
+    if ( en => true )
         en := (c & core.LED_SEL_MASK) | ( ((en <> 0) & 1) << core.LED_SEL )
         writereg(core.CONFIG, 1, @en)
     else
@@ -133,12 +133,13 @@ PUB opmode(md=-2): c
 PUB powered(p=-2): c
 ' Power up the sensor
 '   p:
-'       TRUE (positive values) or FALSE (0)
+'       TRUE (-1, or positive values): power on
+'       FALSE (0): power off
 '   Returns:
 '       current setting, if called with other values
     c := 0
     readreg(core.ENABLE, 1, @c)
-    if ( p > 0 )
+    if ( p => true )
         p := (c & core.PON_MASK) | ((p <> 0) & 1)
         writereg(core.ENABLE, 1, @p)
     else
