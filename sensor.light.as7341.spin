@@ -240,6 +240,22 @@ PUB rgbw_data_rdy(): f
     return ( (f & core.READY_BIT) == 1 )
 
 
+PUB spectral_autozero(en): c
+' Start manual autozero of the spectral engines
+'   en:
+'       TRUE (-1, or positive values): start autozero
+'       FALSE (0): TBD
+'   Returns:
+'       current setting, if called with other values
+'   NOTE: opmode(SP_MEASURE_DIS) should be called before calling this method.
+    c := 0
+    readreg(core.CONTROL, 1, @c)
+    if ( en => true )
+        en := (c & core.AZ_SP_MAN_MASK) | ( ((en <> 0) & 1) << core.AZ_SP_MAN )
+        writereg(core.CONTROL, 1, @en)
+    else
+        return ( ((c >> core.AZ_SP_MAN) & 1) == 1 )
+
 
 con
 
