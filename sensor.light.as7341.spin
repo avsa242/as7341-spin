@@ -93,6 +93,32 @@ PUB flicker_detection_enabled(en=-2): c
         return ( ((c >> core.FDEN) & 1) == 1 )
 
 
+CON
+
+    { interrupts }
+    INT_ASI     = (1 << 7)
+    INT_SP      = (1 << 3)
+    INT_FIFO    = (1 << 2)
+    INT_SYS     = 1
+
+PUB int_mask(m=-2): c
+' Set interrupt mask
+'   m:
+'       symbol      bit     description
+'       INT_ASI     7       Spectral/flicker saturation interrupt
+'       INT_SP      3       Spectral interrupt (threshold)
+'       INT_FIFO    2       FIFO buffer interrupt (FIFO level threshold)
+'       INT_SYS     0       System interrupt (flicker detection status change or SMUX finished)
+'   Returns: current setting, if called with other values
+    if ( m => 0 )
+        m &= core.INTENAB_MASK
+        writereg(core.INTENAB, 1, @m)
+    else
+        c := 0
+        readreg(core.INTENAB, 1, @c)
+        return (c & core.INTENAB_MASK)
+
+
 PUB led_current(lc=-2): c
 ' Set LED drive strength, in milliamperes
 '   lc:

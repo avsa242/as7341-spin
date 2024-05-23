@@ -4,7 +4,7 @@
     Description:    AS7341-specific constants
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 22, 2024
+    Updated:        May 23, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -257,7 +257,7 @@ CON
         FD_100HZ_MASK           = (1 << FD_100HZ) ^ FD_STATUS_MASK
 
     INTENAB                     = $f9
-    INTENAB_MASK                = $8f
+    INTENAB_MASK                = $8d
         ASIEN                   = 7
         SP_IEN                  = 3
         FIEN                    = 2
