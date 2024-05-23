@@ -269,6 +269,7 @@ CON
         AZ_SP_MAN               = 2
         FIFO_CLR                = 1
         CLEAR_SAI_ACT           = 0
+        CLEAR_SAI_ACT_BIT       = (1 << CLEAR_SAI_ACT)
         AZ_SP_MAN_MASK          = (1 << AZ_SP_MAN) ^ CONTROL_MASK
         FIFO_CLR_MASK           = (1 << FIFO_CLR) ^ CONTROL_MASK
         CLEAR_SAI_ACT_MASK      = (1 << CLEAR_SAI_ACT) ^ CONTROL_MASK

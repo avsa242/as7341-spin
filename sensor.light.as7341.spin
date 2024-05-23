@@ -104,10 +104,21 @@ PUB flicker_detection_enabled(en=-2): c
 CON
 
     { interrupts }
+    INT_SAI     = (1 << 8)                      ' pseudo int: sleep after interrupt
     INT_ASI     = (1 << 7)
     INT_SP      = (1 << 3)
     INT_FIFO    = (1 << 2)
     INT_SYS     = 1
+
+
+PUB int_clear(m=-2): c | tmp
+' Clear interrupt(s)
+    if ( m & INT_SAI )
+        tmp := 0
+        readreg(core.CONTROL, 1, @tmp)
+        tmp |= core.CLEAR_SAI_ACT_BIT           ' clear SAI_ACTIVE, end sleep, restart operation
+        writereg(core.CONTROL, 1, @tmp)
+
 
 PUB int_mask(m=-2): c
 ' Set interrupt mask
