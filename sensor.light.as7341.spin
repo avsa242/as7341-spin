@@ -93,6 +93,22 @@ PUB flicker_detection_enabled(en=-2): c
         return ( ((c >> core.FDEN) & 1) == 1 )
 
 
+PUB led_current(lc=-2): c
+' Set LED drive strength, in milliamperes
+'   lc:
+'       4..258 (default: 12)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.LED, 1, @c)
+    case lc
+        4..258:
+            lc := (c & core.LED_DRIVE_MASK) | ( ((lc/2)-2) << core.LED_DRIVE )
+            writereg(core.LED, 1, @lc)
+        other:
+            return ( ((c & core.LED_DRIVE_BITS) + 2) * 2 )
+
+
 PUB led_enabled(en=-2): c
 ' Enable control of external LED
 '   en:
@@ -107,6 +123,22 @@ PUB led_enabled(en=-2): c
         writereg(core.CONFIG, 1, @en)
     else
         return ( ((c >> core.LED_SEL) & 1) == 1 )
+
+
+PUB led_powered(p=-2): c
+' Power on external LED
+'   en:
+'       TRUE (-1 or positive values): power on
+'       FALSE (0): power off
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.LED, 1, @c)
+    if ( p => true )
+        p := (c & core.LED_ACT_MASK) | ( ((p <> 0) & 1) << core.LED_ACT )
+        writereg(core.LED, 1, @p)
+    else
+        return ( ((c >> core.LED_ACT) & 1) == 1 )
 
 
 CON
