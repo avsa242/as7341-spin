@@ -137,8 +137,10 @@ PUB flicker_detect_gain(g=-2): c
             writereg(core.FD_TIME2, 1, @g)
         other:
             c := ( (c >> core.FD_GAIN) & core.FD_GAIN_BITS )
-            return (1 << c-1)                   ' map bitfield 1..10 to 1..512x
-
+            if ( c )
+                return (1 << c-1)               ' map bitfield 1..10 to 1..512x
+            else
+                return 0
 
 PUB flicker_detect_time(t=-2): c
 ' Set flicker detection integration time, in microseconds
@@ -173,6 +175,30 @@ PUB flicker_detect_enabled(en=-2): c
         writereg(core.ENABLE, 1, @en)
     else
         return ( ((c >> core.FDEN) & 1) == 1 )
+
+
+PUB gain(g=-2): c
+' Set spectral engines gain/sensitivity
+'   g:
+'       0, 1..512, in powers of 2 (0 = 0.5; default: 256)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG1, 1, @c)
+    case g
+        0..512:
+            if ( g )
+                g := >|(g)                      ' map 1..512x to bitfield 1..10 (log2(g)+1)
+            else
+                g := 0
+            g := (c & core.AGAIN_MASK) | g
+            writereg(core.CFG1, 1, @g)
+        other:
+            c := ( c & core.AGAIN_BITS )
+            if ( c )
+                return (1 << c-1)               ' map bitfield 1..10 to 1..512x
+            else
+                return 0
 
 
 CON
