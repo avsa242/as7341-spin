@@ -178,6 +178,21 @@ PUB flicker_detect_gain(g=-2): c
             else
                 return 0
 
+
+PUB flicker_detect_persistence(n=-2): c
+' Set the number of consecutive flicker detect results that must be different before
+'   flicker detection status changes
+    c := 0
+    readreg(core.CFG10, 1, @c)
+    case n
+        1..128:
+            n := >|(n)-1
+            n := (c & core.FD_PERS_MASK) | n
+            writereg(core.CFG10, 1, @n)
+        other:
+            return ( 1 << ((c & core.FD_PERS_BITS)+1) )
+
+
 PUB flicker_detect_time(t=-2): c
 ' Set flicker detection integration time, in microseconds
 '   t:
