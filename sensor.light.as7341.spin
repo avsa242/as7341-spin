@@ -119,7 +119,47 @@ PUB fifo_flush() | tmp
     writereg(core.CONTROL, 1, @tmp)
 
 
-PUB flicker_detection_enabled(en=-2): c
+PUB flicker_detect_gain(g=-2): c
+' Set flicker detection gain
+'   g:
+'       0, 1..512, in powers of 2 (0 = 0.5; default: 256)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.FD_TIME2, 1, @c)
+    case g
+        0..512:
+            if ( g )
+                g := >|(g)                      ' map 1..512x to bitfield 1..10 (log2(g)+1)
+            else
+                g := 0
+            g := (c & core.FD_GAIN_MASK) | (g << core.FD_GAIN)
+            writereg(core.FD_TIME2, 1, @g)
+        other:
+            c := ( (c >> core.FD_GAIN) & core.FD_GAIN_BITS )
+            return (1 << c-1)                   ' map bitfield 1..10 to 1..512x
+
+
+PUB flicker_detect_time(t=-2): c
+' Set flicker detection integration time, in microseconds
+'   t:
+'       2_780..5_690660
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.FD_TIME1, 1, @c)               ' discrete reads: regs aren't sequential
+    readreg(core.FD_TIME2, 1, @c+1)             '
+    case t
+        2_780..5_690660:
+            t /= 2_780
+            t := (c & core.FD_TIME_MASK) | t
+            writereg(core.FD_TIME1, 1, @t)
+            writereg(core.FD_TIME1, 1, @t+1)
+        other:
+            return ( (c & core.FD_TIME_BITS) * 2_780 )
+
+
+PUB flicker_detect_enabled(en=-2): c
 ' Enable flicker detection
 '   en:
 '       TRUE (-1 or positive values): enabled

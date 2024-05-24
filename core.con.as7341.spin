@@ -4,7 +4,7 @@
     Description:    AS7341-specific constants
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 23, 2024
+    Updated:        May 24, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -229,13 +229,19 @@ CON
         AGC_AGAIN_MAX_MASK      = (AGC_AGAIN_MAX_BITS << AGC_AGAIN_MAX) ^ AGC_GAIN_MAX_MASK
 
     AZ_CONFIG                   = $d6
-    FD_TIME1                    = $d8
-        FD_TIME_LBITS           = %11111111
 
+    FD_TIME1                    = $d8
+    FD_TIME1_MASK               = $ff
+        FD_TIME_LBITS           = %11111111
     FD_TIME2                    = $da
+    FD_TIME2_MASK               = $ff
         FD_GAIN                 = 3
         FD_GAIN_BITS            = %11111
+        FD_GAIN_MASK            = (FD_GAIN_BITS << FD_GAIN) ^ FD_TIME2_MASK
+        FD_TIME_M               = 8
         FD_TIME_MBITS           = %111          ' bits 10..8 of FD_TIME
+    FD_TIME_BITS                = (FD_TIME_MBITS << FD_TIME_M) | FD_TIME_LBITS
+    FD_TIME_MASK                = FD_TIME_BITS ^ ( (FD_TIME2_MASK << 8) | FD_TIME1_MASK )
 
     FD_CFG0                     = $d7
     FD_CFG0_MASK                = $80
