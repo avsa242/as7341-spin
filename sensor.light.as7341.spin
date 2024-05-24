@@ -302,6 +302,22 @@ PUB spectral_autozero(en): c
         return ( ((c >> core.AZ_SP_MAN) & 1) == 1 )
 
 
+PUB wait_time(w): c
+' Set the delay between consecutive spectral measurements, in microseconds
+'   w:
+'       2_780..711_000:
+'   Returns:
+'       current setting, if called with other values
+'   NOTE: This setting should be longer than the currently set integration time
+    case w
+        2_780..711_000:
+            w := ( w / 2_780 )-1
+            writereg(core.WTIME, 1, @w)
+        other:
+            c := 0
+            readreg(core.WTIME, 1, @c)
+
+
 con
 
     REGBANK_LOW     = 0
