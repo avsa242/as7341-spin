@@ -71,6 +71,40 @@ PUB defaults()
 ' Set factory defaults
 
 
+PUB als_integr_time(t=-2): c
+' Set sensor ADC integration time/time step size, in microseconds
+'   t:
+'       2..182184:
+'   Returns:
+'       current setting, if called with other values
+'   NOTE: The actual integration time is the current value of this setting multiplied by
+'       atime_multiplier()
+    case t
+        2..182_184:
+            t := ( (t * 1_00) / 2_78 )
+            writereg(core.ASTEP, 2, @t)
+        other:
+            c := 0
+            readreg(core.ASTEP, 2, @c)
+            return ( (c * 2_78) / 1_00 )
+
+
+PUB atime_multiplier(m=-2): c
+' Set integration time multiplier
+'   m:
+'       1..256
+'   Returns:
+'       current setting, if called with other values
+    case m
+        1..256:
+            m--
+            writereg(core.ATIME, 1, @m)
+        other:
+            c := 0
+            readreg(core.ATIME, 1, @c)
+            return ( c + 1 )
+
+
 PUB dev_id(): id
 ' Read device identification
     id := 0
