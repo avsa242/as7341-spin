@@ -71,6 +71,42 @@ PUB defaults()
 ' Set factory defaults
 
 
+PUB agc_high_hysteresis(h): c
+' Set automatic gain control high hysteresis, as a percentage
+'   h:
+'       50, 62 (62.5%), 75, 87 (87.5%)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG10, 1, @c)
+    case h
+        50, 62, 75, 87:
+            h := lookdownz(h: 50, 62, 75, 87)   ' map 50..87 to 0..3
+            h := (c & core.AGC_H_MASK) | (h << core.AGC_H)
+            writereg(core.CFG10, 1, @h)
+        other:
+            c := ( (c >> core.AGC_H) & core.AGC_H_BITS )
+            return lookupz(c: 50, 62, 75, 87)   ' map 0..3 to 50..87
+
+
+PUB agc_low_hysteresis(h): c
+' Set automatic gain control low hysteresis, as a percentage
+'   h:
+'       12 (12.5%), 25, 37 (37.5%), 50
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG10, 1, @c)
+    case h
+        12, 25, 37, 50:
+            h := lookdownz(h: 12, 25, 37, 50)   ' map 12..50 to 0..3
+            h := (c & core.AGC_L_MASK) | (h << core.AGC_L)
+            writereg(core.CFG10, 1, @h)
+        other:
+            c := ( (c >> core.AGC_L) & core.AGC_L_BITS )
+            return lookupz(c: 12, 25, 37, 50)   ' map 0..3 to 12..50
+
+
 PUB als_integr_time(t=-2): c
 ' Set sensor ADC integration time/time step size, in microseconds
 '   t:
