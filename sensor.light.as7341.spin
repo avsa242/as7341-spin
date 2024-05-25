@@ -355,29 +355,42 @@ CON
 
     { interrupts }
     INT_SAI     = (1 << 8)                      ' pseudo int: sleep after interrupt
-    INT_ASI     = (1 << 7)
-    INT_SP      = (1 << 3)
-    INT_FIFO    = (1 << 2)
+    INT_ASAT    = (1 << 7)
+    INT_SP_THR  = (1 << 3)
+    INT_FIFO_THR= (1 << 2)
+    INT_CAL     = (1 << 1)
     INT_SYS     = 1
 
 
-PUB int_clear(m=-2): c | tmp
+PUB int_clear(m=-2) | tmp
 ' Clear interrupt(s)
+'   m:  bitmask (set bits will clear the corresponding interrupt)
+'       bit     interrupt
+'       7       spectral/flicker detection saturation interrupt
+'       3       spectral threshold interrupt
+'       2       FIFO threshold interrupt
+'       1       calibration interrupt
+'       0       system interrupt
+'   Returns: none
     if ( m & INT_SAI )
         tmp := 0
         readreg(core.CONTROL, 1, @tmp)
         tmp |= core.CLEAR_SAI_ACT_BIT           ' clear SAI_ACTIVE, end sleep, restart operation
         writereg(core.CONTROL, 1, @tmp)
+        m &= !INT_SAI                           ' strip off the SAI bit
+
+    m &= core.STATUS_MASK                       '   and RESERVED bits
+    writereg(core.STATUS, 1, @m)
 
 
 PUB int_mask(m=-2): c
 ' Set interrupt mask
 '   m:
-'       symbol      bit     description
-'       INT_ASI     7       Spectral/flicker saturation interrupt
-'       INT_SP      3       Spectral interrupt (threshold)
-'       INT_FIFO    2       FIFO buffer interrupt (FIFO level threshold)
-'       INT_SYS     0       System interrupt (flicker detection status change or SMUX finished)
+'       symbol          bit     description
+'       INT_ASAT        7       Spectral/flicker saturation interrupt
+'       INT_SP_THR      3       Spectral interrupt (threshold)
+'       INT_FIFO_THR    2       FIFO buffer interrupt (FIFO level threshold)
+'       INT_SYS         0       System interrupt (flicker detection status change or SMUX finished)
 '   Returns: current setting, if called with other values
     if ( m => 0 )
         m &= core.INTENAB_MASK
@@ -386,6 +399,19 @@ PUB int_mask(m=-2): c
         c := 0
         readreg(core.INTENAB, 1, @c)
         return (c & core.INTENAB_MASK)
+
+
+PUB interrupt(): src
+' Interrupt source(s)
+'   Returns: bitmask
+'       bit     symbol          meaning
+'       7       INT_ASAT        spectral/flicker detect saturation
+'       3       INT_SP_THR      spectral threshold interrupt
+'       2       INT_FIFO_THR    FIFO level threshold interrupt
+'       1       INT_CAL         calibration interrupt
+'       0       INT_SYS         system interrupt
+    src := 0
+    readreg(core.STATUS, 1, @src)
 
 
 PUB led_current(lc=-2): c
