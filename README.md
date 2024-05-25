@@ -16,7 +16,7 @@ This is a P8X32A/Propeller, P2X8C4M64P/Propeller 2 driver object for the ams AS7
 * FIFO ops: flush, set interrupt threshold
 * Flicker detection: set gain, enable AGC, AGC max level, detection time, interrupt persistence
 * Spectral engines: set gain, enable AGC, AGC max level, hysteresis, auto-zero (initiate manually, or set periodic)
-* Read sensor saturation status bits
+* Read status/flags: sensor saturation status, fifo overrun, flicker-detection error, initialization/busy, over-temperature error, spectral engine trigger error
 
 
 ## Requirements

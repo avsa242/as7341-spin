@@ -189,6 +189,14 @@ PUB dev_id(): id
     readreg(core.ID, 1, @id)
 
 
+PUB fifo_data_overrun(): f
+' Flag indicating FIFO data has overrun (data was lost)
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.STATUS6, 1, @f)
+    return ( ((f >> core.FIFO_OV) & 1) == 1 )
+
+
 PUB fifo_flush() | tmp
 ' Flush FIFO, clear interrupt, overflow status and level
     tmp := 0
@@ -312,6 +320,14 @@ PUB flicker_detect_time(t=-2): c
             return ( (c & core.FD_TIME_BITS) * 2_780 )
 
 
+PUB flicker_detect_trig_err(): f
+' Flag indicating there is a timing error that prevents flicker detection from working correctly
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.STATUS6, 1, @f)
+    return ( ((f >> core.FD_TRIG) & 1) == 1 )
+
+
 PUB flicker_detect_enabled(en=-2): c
 ' Enable flicker detection
 '   en:
@@ -350,6 +366,14 @@ PUB gain(g=-2): c
                 return (1 << (c-1))             ' map bitfield 1..10 to 1..512x
             else
                 return 0
+
+
+PUB init_busy(): f
+' Flag indicating the device is initializing
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.STATUS6, 1, @f)
+    return ( (f & 1) == 1 )
 
 
 CON
@@ -420,6 +444,14 @@ PUB interrupt(): src
         src.byte[1] := (src.byte[1] >> core.INT_SP_L)
 
 
+PUB is_sleeping(): f
+' Flag indicating sleep-after-interrupt is active
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.STATUS6, 1, @f)
+    return ( ((f >> core.SAI_ACT) & 1) == 1 )
+
+
 PUB led_current(lc=-2): c
 ' Set LED drive strength, in milliamperes
 '   lc:
@@ -488,6 +520,15 @@ PUB opmode(md=-2): c
         writereg(core.ENABLE, 1, @md)
     else
         return ( ((c >> core.SP_EN) & 1) == 1 )
+
+
+PUB over_temperature(): f
+' Flag indicating the sensor's temperature is too high
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.STATUS6, 1, @f)
+    return ( ((f >> core.OVTEMP) & 1) == 1 )
+
 
 PUB powered(p=-2): c
 ' Power up the sensor
@@ -632,6 +673,14 @@ PUB spectral_thresh_channel(ch=-2): c
             writereg(core.CFG12, 1, @ch)
         other:
             return (c & core.SP_TH_CH_BITS)
+
+
+PUB spectral_trig_err(): f
+' Flag indicating wait_time() is set too short for the selected als_integr_time()
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.STATUS6, 1, @f)
+    return ( ((f >> core.SP_TRIG) & 1) == 1 )
 
 
 PUB wait_time(w=-2): c
