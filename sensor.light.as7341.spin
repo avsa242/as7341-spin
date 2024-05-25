@@ -196,6 +196,24 @@ PUB fifo_flush() | tmp
     writereg(core.CONTROL, 1, @tmp)
 
 
+PUB fifo_thresh(t): c
+' Set FIFO interrupt threshold
+'   t:
+'       1, 4, 8, 16
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG8, 1, @c)
+    case t
+        1, 4, 8, 16:
+            t := lookdownz(t: 1, 4, 8, 16)      ' map 1..16 to 0..3
+            t := (c & core.FIFO_TH_MASK) | (t << core.FIFO_TH)
+            writereg(core.CFG8, 1, @t)
+        other:
+            c := ( (c >> core.FIFO_TH) & core.FIFO_TH_BITS )
+            return lookupz(c: 1, 4, 8, 16)
+
+
 PUB flicker_detect_agc_max(g=-2): c
 ' Set flicker detection AGC maximum level
 '   g:
