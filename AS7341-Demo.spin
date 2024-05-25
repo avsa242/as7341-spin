@@ -32,7 +32,6 @@ PUB main() | id, i
 
     setup()
 
-    sensor.gain(1)
     sensor.powered(true)
     sensor.opmode(sensor.SP_MEASURE_EN)
     repeat

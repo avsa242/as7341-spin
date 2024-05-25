@@ -4,7 +4,7 @@
     Description:    Driver for the ams AS7341 multi-spectral sensor
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 23, 2024
+    Updated:        May 25, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -139,6 +139,23 @@ PUB atime_multiplier(m=-2): c
             c := 0
             readreg(core.ATIME, 1, @c)
             return ( c + 1 )
+
+
+PUB autozero_freq(f=-2): c
+' Set how often the device performs auto-zero of the spectral engines
+'   f:
+'       0:      never (not recommended)
+'       1:      every integration cycle
+'       2..254: every f'th integration cycle
+'       255:    only before the first measurement cycle (default)
+'   Returns:
+'       current setting, if called with other values
+    case f
+        0..255:
+            writereg(core.AZ_CONFIG, 1, @f)
+        other:
+            c := 0
+            readreg(core.AZ_CONFIG, 1, @c)
 
 
 PUB dev_id(): id

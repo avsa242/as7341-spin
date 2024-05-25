@@ -17,6 +17,7 @@ This is a P8X32A/Propeller, P2X8C4M64P/Propeller 2 driver object for the ams AS7
 * Flicker detection: set gain, detection time, set interrupt persistence
 * Set gain
 * AGC: set hysteresis
+* Auto-zero
 
 
 ## Requirements
