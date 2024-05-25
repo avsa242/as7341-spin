@@ -4,7 +4,7 @@
     Description:    AS7341-specific constants
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 24, 2024
+    Updated:        May 25, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -121,6 +121,7 @@ CON
         ASAT_ANA                = 3
         FDSAT_ANA               = 1
         FDSAT_DIG               = 0
+        SAT_BITS                = %11011
 
     STATUS3                     = $a4           ' r/o
         INT_SP_H                = 5

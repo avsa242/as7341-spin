@@ -525,7 +525,23 @@ PUB rgbw_data_rdy(): f
 '   Returns: TRUE (-1) or FALSE (0)
     f := 0
     readreg(core.STATUS2, 1, @f)
+    _sat_status := f                            ' cache reg in RAM for use by saturation()
     return ( ((f >> core.AVALID) & 1) == 1)
+
+
+VAR byte _sat_status
+PUB saturation(): st
+' Sensor saturation status
+'   Returns: bitmask
+'       bit     symbol          description
+'       4       ASAT_DIGITAL    ADC max value has been reached
+'       3       ASAT_ANALOG     ambient light intensity exceeds max integration level for spectral
+'                                   analog circuit
+'       1       FDSAT_ANALOG    ambient light intensity exceeds max integration level for flicker
+'                                   detection analog circuit
+'       0       FDSAT_DIGITAL   ADC max value has been reached during flicker detection
+'   NOTE: rgbw_data_rdy() must be called first to update this status
+    return ( _sat_status & core.SAT_BITS )
 
 
 PUB spectral_agc_enabled(en): c
