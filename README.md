@@ -12,7 +12,7 @@ This is a P8X32A/Propeller, P2X8C4M64P/Propeller 2 driver object for the ams AS7
 * Read sensor data (ADC words)
 * External LED control: power on/off, set drive strength
 * Set ADC integration time
-* Interrupts: set mask, threshold
+* Interrupts: set mask, threshold, source channel
 * FIFO ops: flush, set interrupt threshold
 * Flicker detection: set gain, enable AGC, AGC max level, detection time, interrupt persistence
 * Spectral engines: set gain, enable AGC, AGC max level, hysteresis, auto-zero (initiate manually, or set periodic)

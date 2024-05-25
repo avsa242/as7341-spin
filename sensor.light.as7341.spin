@@ -570,6 +570,22 @@ PUB spectral_int_set_lo_thresh(th)
     writereg(core.SP_TH_L, 2, @th)
 
 
+PUB spectral_thresh_channel(ch=-2): c
+' Set channel used for spectral engine-related interrupts (interrupts, persistence, AGC)
+'   ch:
+'       0..4
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG12, 1, @c)
+    case ch
+        0..4:
+            ch := (c & core.SP_TH_CH_MASK) | ch
+            writereg(core.CFG12, 1, @ch)
+        other:
+            return (c & core.SP_TH_CH_BITS)
+
+
 PUB wait_time(w=-2): c
 ' Set the delay between consecutive spectral measurements, in microseconds
 '   w:
