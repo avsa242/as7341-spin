@@ -206,12 +206,28 @@ PUB fifo_thresh(t): c
     readreg(core.CFG8, 1, @c)
     case t
         1, 4, 8, 16:
-            t := lookdownz(t: 1, 4, 8, 16)      ' map 1..16 to 0..3
+            t := lookdownz(t: 1, 4, 8, 16)      ' map 1, 4, 8, 16 to 0..3
             t := (c & core.FIFO_TH_MASK) | (t << core.FIFO_TH)
             writereg(core.CFG8, 1, @t)
         other:
             c := ( (c >> core.FIFO_TH) & core.FIFO_TH_BITS )
-            return lookupz(c: 1, 4, 8, 16)
+            return lookupz(c: 1, 4, 8, 16)      ' map 0..3 to 1, 4, 8, 16
+
+
+PUB flicker_detect_agc_enabled(en): c
+' Use automatic gain control for the flicker detection engine
+'   en:
+'       TRUE (-1 or positive values): enabled
+'       FALSE (0): disabled
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG8, 1, @c)
+    if ( en => true )
+        en := (c & core.FD_AGC_MASK) | ( ((en <> 0) & 1) << core.FD_AGC )
+        writereg(core.CFG8, 1, @en)
+    else
+        return ( ((c >> core.FD_AGC) & 1) == 1 )
 
 
 PUB flicker_detect_agc_max(g=-2): c
