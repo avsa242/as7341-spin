@@ -406,6 +406,8 @@ PUB interrupt(): src
 ' Interrupt source(s)
 '   Returns: bitmask
 '       bit     symbol          meaning
+'       9       INT_SP_H        spectral interrupt high (n/a unless bit 3 is set)
+'       8       INT_SP_L        spectral interrupt low (n/a unless bit 3 is set)
 '       7       INT_ASAT        spectral/flicker detect saturation
 '       3       INT_SP_THR      spectral threshold interrupt
 '       2       INT_FIFO_THR    FIFO level threshold interrupt
@@ -413,6 +415,9 @@ PUB interrupt(): src
 '       0       INT_SYS         system interrupt
     src := 0
     readreg(core.STATUS, 1, @src)
+    if ( src & INT_SP_THR )                     ' if there was a spectral threshold interrupt,
+        readreg(core.STATUS3, 1, @src+1)        '   report which one it actually was in bits 8..9
+        src.byte[1] := (src.byte[1] >> core.INT_SP_L)
 
 
 PUB led_current(lc=-2): c
