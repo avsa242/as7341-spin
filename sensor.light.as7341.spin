@@ -54,6 +54,7 @@ PUB startx(SCL_PIN, SDA_PIN, I2C_HZ): status
     if ( lookdown(SCL_PIN: 0..31) and lookdown(SDA_PIN: 0..31) )
         if ( status := i2c.init(SCL_PIN, SDA_PIN, I2C_HZ) )
             time.usleep(core.T_POR)             ' wait for device startup
+            _bank := -1                         ' init reg bank
             if ( dev_id() == core.DEVID_RESP )  ' validate device 
                 return
     ' if this point is reached, something above failed
@@ -630,13 +631,24 @@ PUB wait_time(w=-2): c
 
 con
 
+    { register bank }
     REGBANK_LOW     = 0
     REGBANK_HIGH    = 1
+
+VAR
+
+    { Track the last set bank. When the driver is started, this is initialized to a value that
+        doesn't match either setting, so it always gets set to a known state the first time around
+        when it's checked }
+    byte _bank
 
 PRI banksel(b) | tmp
 ' Select register bank
 '   REGBANK_LOW (0): access registers $60..$74
 '   REGBANK_HIGH (1): access registers $80..$ff
+    if ( b == _bank )
+        return                                  ' already set to the same bank; do nothing
+
     tmp := 0
     i2c.start()
     i2c.write(SLAVE_WR)
@@ -650,6 +662,7 @@ PRI banksel(b) | tmp
         tmp &= core.REG_BANK_MASK
     elseif ( b == REGBANK_LOW )
         tmp |= core.REG_BANK_LO
+    _bank := b                                  ' update last used bank
 
     i2c.start()
     i2c.write(SLAVE_WR)
