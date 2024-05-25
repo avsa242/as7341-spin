@@ -523,8 +523,8 @@ PUB rgbw_data_rdy(): f
 ' Flag indicating new sensor data ready
 '   Returns: TRUE (-1) or FALSE (0)
     f := 0
-    readreg(core.STAT, 1, @f)
-    return ( (f & core.READY_BIT) == 1 )
+    readreg(core.STATUS2, 1, @f)
+    return ( ((f >> core.AVALID) & 1) == 1)
 
 
 PUB spectral_agc_enabled(en): c

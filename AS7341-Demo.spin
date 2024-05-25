@@ -28,18 +28,28 @@ VAR
     word ldata[6]
 
 
-PUB main() | id, i
+PUB main() | i, s, loops
 
     setup()
 
+    sensor.als_integr_time(3)
+    sensor.atime_multiplier(1)
     sensor.powered(true)
     sensor.opmode(sensor.SP_MEASURE_EN)
+    loops := 0
+    s := cnt
     repeat
-        repeat until sensor.rgbw_data_rdy()
-        sensor.rgbw_data(@ldata)
-        repeat i from 0 to 5
-            ser.pos_xy(0, 4+i)
-            ser.puthexs(ldata[i], 8)
+        repeat until ( (cnt-s) > clkfreq )      ' keep taking measurements for one second
+            repeat until sensor.rgbw_data_rdy()
+            loops++
+            sensor.rgbw_data(@ldata)
+            repeat i from 0 to 5                '\
+                ser.pos_xy(0, 4+i)              '- comment out to get a more accurate speed test
+                ser.puthexs(ldata[i], 8)        '/
+        ser.pos_xy(0, 3)
+        ser.printf1(@"%dHz", loops)
+        loops := 0
+        s := cnt
 
 
 PUB setup()
