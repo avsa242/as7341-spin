@@ -71,6 +71,30 @@ PUB defaults()
 ' Set factory defaults
 
 
+PUB agc_gain_max(g): c
+' Set automatic gain control maximum level
+'   g:
+'       0, 1..512, in powers of 2 (0 = 0.5; default: 256)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.AGC_GAIN_MAX, 1, @c)
+    case g
+        0..512:
+            if ( g )
+                g := >|(g)                      ' map 1..512x to bitfield 1..10 (log2(g)+1)
+            else
+                g := 0
+            g := (c & core.AGC_AGAIN_MAX_MASK) | g
+            writereg(core.AGC_GAIN_MAX, 1, @g)
+        other:
+            c := ( c & core.AGC_AGAIN_MAX_BITS )
+            if ( c )
+                return (1 << c-1)               ' map bitfield 1..10 to 1..512x
+            else
+                return 0
+
+
 PUB agc_high_hysteresis(h): c
 ' Set automatic gain control high hysteresis, as a percentage
 '   h:
