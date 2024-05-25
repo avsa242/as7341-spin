@@ -534,6 +534,42 @@ PUB spectral_autozero(en): c
         return ( ((c >> core.AZ_SP_MAN) & 1) == 1 )
 
 
+PUB spectral_int_hi_thresh(): th
+' Get spectral interrupt high threshold
+'   Returns:
+'       currently set threshold
+    th := 0
+    readreg(core.SP_TH_H, 2, @th)
+
+
+PUB spectral_int_lo_thresh(): th
+' Get spectral interrupt low threshold
+'   Returns:
+'       currently set threshold
+    th := 0
+    readreg(core.SP_TH_L, 2, @th)
+
+
+PUB spectral_int_set_hi_thresh(th)
+' Set spectral interrupt high threshold
+'   th:
+'       0..65535 (clamped to range; default: 0)
+'   Returns:
+'       none
+    th := 0 #> th <# 65535
+    writereg(core.SP_TH_H, 2, @th)
+
+
+PUB spectral_int_set_lo_thresh(th)
+' Set spectral interrupt low threshold
+'   th:
+'       0..65535 (clamped to range; default: 0)
+'   Returns:
+'       none
+    th := 0 #> th <# 65535
+    writereg(core.SP_TH_L, 2, @th)
+
+
 PUB wait_time(w=-2): c
 ' Set the delay between consecutive spectral measurements, in microseconds
 '   w:
