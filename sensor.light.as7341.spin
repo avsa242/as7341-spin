@@ -501,6 +501,22 @@ PUB rgbw_data_rdy(): f
     return ( (f & core.READY_BIT) == 1 )
 
 
+PUB spectral_agc_enabled(en): c
+' Use automatic gain control for the spectral engines
+'   en:
+'       TRUE (-1 or positive values): enabled
+'       FALSE (0): disabled
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG8, 1, @c)
+    if ( en => true )
+        en := (c & core.SP_AGC_MASK) | ( ((en <> 0) & 1) << core.SP_AGC )
+        writereg(core.CFG8, 1, @en)
+    else
+        return ( ((c >> core.SP_AGC) & 1) == 1 )
+
+
 PUB spectral_autozero(en): c
 ' Start manual autozero of the spectral engines
 '   en:
