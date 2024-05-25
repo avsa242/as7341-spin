@@ -71,7 +71,7 @@ PUB defaults()
 ' Set factory defaults
 
 
-PUB agc_gain_max(g): c
+PUB agc_gain_max(g=-2): c
 ' Set automatic gain control maximum level
 '   g:
 '       0, 1..512, in powers of 2 (0 = 0.5; default: 256)
@@ -90,12 +90,12 @@ PUB agc_gain_max(g): c
         other:
             c := ( c & core.AGC_AGAIN_MAX_BITS )
             if ( c )
-                return (1 << c-1)               ' map bitfield 1..10 to 1..512x
+                return (1 << (c-1))             ' map bitfield 1..10 to 1..512x
             else
                 return 0
 
 
-PUB agc_high_hysteresis(h): c
+PUB agc_high_hysteresis(h=-2): c
 ' Set automatic gain control high hysteresis, as a percentage
 '   h:
 '       50, 62 (62.5%), 75, 87 (87.5%)
@@ -113,7 +113,7 @@ PUB agc_high_hysteresis(h): c
             return lookupz(c: 50, 62, 75, 87)   ' map 0..3 to 50..87
 
 
-PUB agc_low_hysteresis(h): c
+PUB agc_low_hysteresis(h=-2): c
 ' Set automatic gain control low hysteresis, as a percentage
 '   h:
 '       12 (12.5%), 25, 37 (37.5%), 50
@@ -196,6 +196,30 @@ PUB fifo_flush() | tmp
     writereg(core.CONTROL, 1, @tmp)
 
 
+PUB flicker_detect_agc_max(g=-2): c
+' Set flicker detection AGC maximum level
+'   g:
+'       0, 1..512, in powers of 2 (0 = 0.5; default: 256)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.AGC_GAIN_MAX, 1, @c)
+    case g
+        0..512:
+            if ( g )
+                g := >|(g)                      ' map 1..512x to bitfield 1..10 (log2(g)+1)
+            else
+                g := 0
+            g := (c & core.AGC_FD_GAIN_MAX_MASK) | (g << core.AGC_FD_GAIN_MAX)
+            writereg(core.AGC_GAIN_MAX, 1, @g)
+        other:
+            c := ( (c >> core.AGC_FD_GAIN_MAX) & core.AGC_FD_GAIN_MAX_BITS )
+            if ( c )
+                return (1 << (c-1))             ' map bitfield 1..10 to 1..512x
+            else
+                return 0
+
+
 PUB flicker_detect_gain(g=-2): c
 ' Set flicker detection gain
 '   g:
@@ -215,7 +239,7 @@ PUB flicker_detect_gain(g=-2): c
         other:
             c := ( (c >> core.FD_GAIN) & core.FD_GAIN_BITS )
             if ( c )
-                return (1 << c-1)               ' map bitfield 1..10 to 1..512x
+                return (1 << (c-1))             ' map bitfield 1..10 to 1..512x
             else
                 return 0
 
@@ -288,7 +312,7 @@ PUB gain(g=-2): c
         other:
             c := ( c & core.AGAIN_BITS )
             if ( c )
-                return (1 << c-1)               ' map bitfield 1..10 to 1..512x
+                return (1 << (c-1))             ' map bitfield 1..10 to 1..512x
             else
                 return 0
 
@@ -460,7 +484,7 @@ PUB spectral_autozero(en): c
         return ( ((c >> core.AZ_SP_MAN) & 1) == 1 )
 
 
-PUB wait_time(w): c
+PUB wait_time(w=-2): c
 ' Set the delay between consecutive spectral measurements, in microseconds
 '   w:
 '       2_780..711_000:
