@@ -75,9 +75,7 @@ PUB defaults()
 PUB agc_gain(): g
 ' Get the gain level currently set by the AGC
 '   Returns: gain factor
-    g := 0
-    readreg(core.ASTATUS1, 1, @g)
-    g := ( g & core.AGC_AGAIN_MAX_BITS )
+    g := ( _light_data.byte[1] & core.AGC_AGAIN_MAX_BITS )
     if ( g )
         return (1 << (g-1))             ' map bitfield 1..10 to 1..512x
     else
@@ -618,7 +616,19 @@ PUB reset()
 
 VAR
 
-    word _light_data[6]
+    { spectral data }
+    { structure:
+        _light_data.byte[0]: undefined
+        _light_data.byte[1]: ASTATUS1
+        _light_data.word[1]: CH0_DATA
+        _light_data.word[2]: CH1_DATA
+        _light_data.word[3]: CH2_DATA
+        _light_data.word[4]: CH3_DATA
+        _light_data.word[5]: CH4_DATA
+        _light_data.word[6]: CH5_DATA
+    }
+    word _light_data[7]
+
 
 PUB rgbw_data(ptr_d=0)
 ' Get sensor data
@@ -627,9 +637,9 @@ PUB rgbw_data(ptr_d=0)
 '   Data format:
 '       TBD
 '   NOTE: This buffer must be at least 6 words in length
-    readreg(core.CH0_DATA, 12, @_light_data)
+    readreg(core.ASTATUS1, 13, @_light_data+1)
     if ( ptr_d )
-        wordmove(ptr_d, @_light_data, 6)
+        wordmove(ptr_d, @_light_data+2, 6)
 
 
 PUB rgbw_data_rdy(): f
