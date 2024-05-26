@@ -4,7 +4,7 @@
     Description:    AS7341-specific constants
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 25, 2024
+    Updated:        May 26, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -252,6 +252,7 @@ CON
     FD_STATUS_MASK              = $3f
         FD_VALID                = 5
         FD_VALID_MASK           = (1 << FD_VALID) ^ FD_STATUS_MASK
+        FD_VALID_CLEAR          = (1 << FD_VALID)
         FD_SAT                  = 4
         FD_SAT_MASK             = (1 << FD_SAT) ^ FD_STATUS_MASK
         FD_120HZ_VALID          = 3

@@ -4,7 +4,7 @@
     Description:    Driver for the ams AS7341 multi-spectral sensor
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 25, 2024
+    Updated:        May 26, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -263,6 +263,12 @@ PUB flicker_detect_agc_max(g=-2): c
                 return 0
 
 
+PUB flicker_detect_clear() | tmp
+' Clear the flicker detect ready status bit
+    tmp := core.FD_VALID_CLEAR
+    writereg(core.FD_STATUS, 1, @tmp)
+
+
 PUB flicker_detect_gain(g=-2): c
 ' Set flicker detection gain
 '   g:
@@ -299,6 +305,38 @@ PUB flicker_detect_persistence(n=-2): c
             writereg(core.CFG10, 1, @n)
         other:
             return ( 1 << ((c & core.FD_PERS_BITS)+1) )
+
+
+PUB flicker_detect_ready(): f
+' Flag indicating flicker detection measurement is complete
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.FD_STATUS, 1, @f)
+    return ( ((f >> core.FD_VALID) & 1) == 1 )
+
+
+PUB flicker_detect_100hz_ready(): f
+' Flag indicating flicker detection 100Hz measurement is valid
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.FD_STATUS, 1, @f)
+    return ( ((f >> core.FD_100HZ_VALID) & 1) == 1 )
+
+
+PUB flicker_detect_120hz_ready(): f
+' Flag indicating flicker detection 120Hz measurement is valid
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.FD_STATUS, 1, @f)
+    return ( ((f >> core.FD_120HZ_VALID) & 1) == 1 )
+
+
+PUB flicker_detect_saturated(): f
+' Flag indicating flicker detection measurement is saturated
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.FD_STATUS, 1, @f)
+    return ( ((f >> core.FD_SAT) & 1) == 1 )
 
 
 PUB flicker_detect_time(t=-2): c
