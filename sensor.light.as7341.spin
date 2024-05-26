@@ -222,6 +222,14 @@ PUB fifo_nr_unread(): n
     readreg(core.FIFO_LVL, 1, @n)
 
 
+PUB fifo_read(n, p_buff)
+' Read FIFO data
+'   n:      number of samples/entries to read
+'   p_buff: pointer to buffer to copy data to
+'   Returns: none
+    readreg(core.FDATA, n, p_buff)
+
+
 PUB fifo_src(msk=-2): c | tmp
 ' Set FIFO source data
 '   msk: bitmask
