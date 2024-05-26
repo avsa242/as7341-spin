@@ -72,6 +72,18 @@ PUB defaults()
 ' Set factory defaults
 
 
+PUB agc_gain(): g
+' Get the gain level currently set by the AGC
+'   Returns: gain factor
+    g := 0
+    readreg(core.ASTATUS1, 1, @g)
+    g := ( g & core.AGC_AGAIN_MAX_BITS )
+    if ( g )
+        return (1 << (g-1))             ' map bitfield 1..10 to 1..512x
+    else
+        return 0
+
+
 PUB agc_gain_max(g=-2): c
 ' Set automatic gain control maximum level
 '   g:
