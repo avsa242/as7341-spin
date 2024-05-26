@@ -215,6 +215,35 @@ PUB fifo_flush() | tmp
     writereg(core.CONTROL, 1, @tmp)
 
 
+PUB fifo_src(msk=-2): c | tmp
+' Set FIFO source data
+'   msk: bitmask
+'       bit     description
+'       7       write flicker detection data (ignored if flicker detection is disabled)
+'       6       write CH5 data (ignored if flicker detection is enabled)
+'       5       write CH4 data
+'       4       write CH3 data
+'       3       write CH2 data
+'       2       write CH1 data
+'       1       write CH0 data
+'       0       write ASTATUS (one byte per sample)
+'   Returns:
+'       current setting, if called with other values
+    if ( msk => 0 )
+        if ( msk & core.FIFO_WRITE_FD_SET )
+            tmp := 0
+            readreg(core.FIFO_CFG0, 1, @tmp)    ' ensure the reserved bits are kept
+            tmp |= core.FIFO_WRITE_FD_SET
+            writereg(core.FIFO_CFG0, 1, @tmp)
+        msk &= core.FIFO_MAP_MASK
+        writereg(core.FIFO_MAP, 1, @msk)
+    else
+        c := tmp := 0
+        readreg(core.FIFO_MAP, 1, @c)
+        readreg(core.FIFO_CFG0, 1, @tmp)
+        return c | (tmp & core.FIFO_WRITE_FD_SET)
+
+
 PUB fifo_thresh(t): c
 ' Set FIFO interrupt threshold
 '   t:

@@ -245,9 +245,11 @@ CON
     FD_TIME_BITS                = (FD_TIME_MBITS << FD_TIME_M) | FD_TIME_LBITS
     FD_TIME_MASK                = FD_TIME_BITS ^ ( (FD_TIME2_MASK << 8) | FD_TIME1_MASK )
 
-    FD_CFG0                     = $d7
-    FD_CFG0_MASK                = $80
-        FD_FIFO                 = 7
+    FIFO_CFG0                   = $d7
+    FIFO_CFG0_MASK              = $80
+        FIFO_WRITE_FD           = 7
+        FIFO_WRITE_FD_SET       = (1 << FIFO_WRITE_FD)
+        FIFO_WRITE_FDMASK       = (1 << FD_FIFO) ^ FD_CFG0_MASK
 
     FD_STATUS                   = $db           ' r/o
     FD_STATUS_MASK              = $3f
