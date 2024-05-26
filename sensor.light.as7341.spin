@@ -700,7 +700,7 @@ PUB smux_command(cmd): c
     readreg(core.CFG6, 1, @c)
     case cmd
         0..2:
-            cmd := (c & core.SMUX_CMD_MASK) | (c << core.SMUX_CMD
+            cmd := (c & core.SMUX_CMD_MASK) | (c << core.SMUX_CMD)
         other:
             return ((c >> core.SMUX_CMD) & core.SMUX_CMD_BITS)
 
@@ -736,6 +736,27 @@ PUB spectral_autozero(en): c
         writereg(core.CONTROL, 1, @en)
     else
         return ( ((c >> core.AZ_SP_MAN) & 1) == 1 )
+
+
+PUB spectral_int_duration(cyc=-2): c
+' Set number of consecutive cycles necessary to generate a spectral interrupt
+'   cyc:
+'       0..3, 5..60 in multiples of 5 (default: 0)
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.PERS, 1, @c)
+    case cyc
+        0..3, 5..60:
+            if ( cyc => 5 )
+                cyc := (cyc / 5) + 3
+            cyc := (c & core.APERS_MASK) | cyc
+            writereg(core.PERS, 1, @cyc)
+        other:
+            c &= core.APERS_BITS
+            if ( c => 4 )
+                c := 5 * (c-3)
+            return c
 
 
 PUB spectral_int_hi_thresh(): th

@@ -180,8 +180,8 @@ CON
     CFG9_MASK                   = $50
         SIEN_FD                 = 6
         SIEN_FD_MASK            = (1 << SIEN_FD) ^ CFG9_MASK
-        SIEN_MUX                = 4
-        SIEN_MUX_MASK           = (1 << SIEN_MUX) ^ CFG9_MASK
+        SIEN_SMUX               = 4
+        SIEN_SMUX_MASK          = (1 << SIEN_SMUX) ^ CFG9_MASK
         SIEN_MASK               = CFG9_MASK ^ $ff
 
     CFG10                       = $b3
