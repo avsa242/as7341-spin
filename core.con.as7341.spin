@@ -249,7 +249,7 @@ CON
     FIFO_CFG0_MASK              = $80
         FIFO_WRITE_FD           = 7
         FIFO_WRITE_FD_SET       = (1 << FIFO_WRITE_FD)
-        FIFO_WRITE_FDMASK       = (1 << FD_FIFO) ^ FD_CFG0_MASK
+        FIFO_WRITE_FDMASK       = (1 << FIFO_WRITE_FD) ^ FIFO_CFG0_MASK
 
     FD_STATUS                   = $db           ' r/o
     FD_STATUS_MASK              = $3f

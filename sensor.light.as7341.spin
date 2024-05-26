@@ -215,6 +215,13 @@ PUB fifo_flush() | tmp
     writereg(core.CONTROL, 1, @tmp)
 
 
+PUB fifo_nr_unread(): n
+' Number of unread samples stored in FIFO
+'   Returns: number of entries, 0..128 (each sample is 2 bytes)
+    n := 0
+    readreg(core.FIFO_LVL, 1, @n)
+
+
 PUB fifo_src(msk=-2): c | tmp
 ' Set FIFO source data
 '   msk: bitmask
