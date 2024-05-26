@@ -182,6 +182,7 @@ CON
         SIEN_FD_MASK            = (1 << SIEN_FD) ^ CFG9_MASK
         SIEN_MUX                = 4
         SIEN_MUX_MASK           = (1 << SIEN_MUX) ^ CFG9_MASK
+        SIEN_MASK               = CFG9_MASK ^ $ff
 
     CFG10                       = $b3
     CFG10_MASK                  = $f7

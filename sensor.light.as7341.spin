@@ -798,6 +798,30 @@ PUB spectral_trig_err(): f
     return ( ((f >> core.SP_TRIG) & 1) == 1 )
 
 
+CON
+
+    { system interrupts }
+    SIEN_FD     = (1 << core.SIEN_FD)
+    SIEN_SMUX   = (1 << core.SIEN_SMUX)
+
+PUB system_int_ena(msk=-2): c
+' Enable system interrupt(s)
+'   msk: bitmask
+'       bit     symbol      description
+'       6       SIEN_FD     enable system interrupt when flicker detection status has changed
+'       4       SIEN_SMUX   enable system interrupt when SMUX command has finished
+'       (other bits ignored)
+
+    c := 0
+    readreg(core.CFG9, 1, @c)
+    if ( msk => 0 )
+        msk &= core.CFG9_MASK
+        msk := (c & core.SIEN_MASK) | msk
+        writereg(core.CFG9, 1, @msk)
+    else
+        return (c & core.CFG9_MASK)
+
+
 PUB wait_time(w=-2): c
 ' Set the delay between consecutive spectral measurements, in microseconds
 '   w:
