@@ -163,7 +163,7 @@ CON
     CFG6                        = $af
     CFG6_MASK                   = $38
         SMUX_CMD                = 3
-        SMUX_CMD_BITS           = %111
+        SMUX_CMD_BITS           = %11
         SMUX_CMD_MASK           = (SMUX_CMD_BITS << SMUX_CMD) ^ CFG6_MASK
 
     CFG8                        = $b1

@@ -690,6 +690,21 @@ PUB sleep_after_int(en): c
         return ( ((c >> core.SAI) & 1) == 1 )
 
 
+PUB smux_command(cmd): c
+' Send SMUX command to device
+'   cmd:
+'       0: ROM code init of SMUX
+'       1: read current SMUX config
+'       2: write SMUX config
+    c := 0
+    readreg(core.CFG6, 1, @c)
+    case cmd
+        0..2:
+            cmd := (c & core.SMUX_CMD_MASK) | (c << core.SMUX_CMD
+        other:
+            return ((c >> core.SMUX_CMD) & core.SMUX_CMD_BITS)
+
+
 PUB spectral_agc_enabled(en): c
 ' Use automatic gain control for the spectral engines
 '   en:
