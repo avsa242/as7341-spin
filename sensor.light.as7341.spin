@@ -674,6 +674,22 @@ PUB saturation(): st
     return ( _sat_status & core.SAT_BITS )
 
 
+PUB sleep_after_int(en): c
+' Sleep after interrupts are asserted
+'   en:
+'       TRUE (-1 or positive values): enabled
+'       FALSE (0): disabled
+'   Returns:
+'       current setting, if called with other values
+    c := 0
+    readreg(core.CFG3, 1, @c)
+    if ( en => true )
+        en := (c & core.SAI_MASK) | ( ((en <> 0) & 1) << core.SAI )
+        writereg(core.CFG3, 1, @en)
+    else
+        return ( ((c >> core.SAI) & 1) == 1 )
+
+
 PUB spectral_agc_enabled(en): c
 ' Use automatic gain control for the spectral engines
 '   en:
