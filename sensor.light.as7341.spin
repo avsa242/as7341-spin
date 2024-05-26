@@ -570,20 +570,28 @@ CON
     SP_MEASURE_DIS  = 0                         ' measurements disabled
     SP_MEASURE_EN   = 1                         ' measurements enabled
 
-PUB opmode(md=-2): c
+    LOW_POWER       = 1 << 1
+
+PUB opmode(md=-2): c | lp
 ' Set device operating mode
-'   md:
-'       SP_MEASURE_DIS (0): disable spectral measurements
-'       SP_MEASURE_EN (1): enable spectral measurements
+'   md: bitmask
+'       bit     description
+'       0       disable/enable spectral measurements (SP_MEASURE_DIS, SP_MEASURE_EN)
+'       1       normal/low power mode (if set; LOW_POWER)
 '   Returns:
 '       current setting, if called with other values
-    c := 0
+    c := lp := 0
     readreg(core.ENABLE, 1, @c)
-    if ( md == SP_MEASURE_EN )
-        md := (c & core.SP_EN_MASK) | ( ((md <> 0) & 1) << core.SP_EN )
+    readreg(core.CFG0, 1, @lp)
+    if ( md => true )
+        lp := (lp & core.LOW_POWER_MASK) | (md.[1] << core.LOW_POWER)
+        md := (c & core.SP_EN_MASK) | ( md.[0] << core.SP_EN )
         writereg(core.ENABLE, 1, @md)
+        writereg(core.CFG0, 1, @lp)
     else
-        return ( ((c >> core.SP_EN) & 1) == 1 )
+        c := c.[core.SP_EN]                     ' extract only the SP_EN bit
+        c.[1] := lp.[core.LOW_POWER]            ' add the LOW_POWER bit to bit 1 of the return val
+        return c
 
 
 PUB over_temperature(): f
