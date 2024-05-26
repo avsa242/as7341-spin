@@ -223,6 +223,22 @@ PUB fifo_thresh(t): c
             return lookupz(c: 1, 4, 8, 16)      ' map 0..3 to 1, 4, 8, 16
 
 
+PUB flicker_detected_100hz(): f
+' Flag indicating flicker detected at 100Hz
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.FD_STATUS, 1, @f)
+    return ( (f & 1) == 1 )
+
+
+PUB flicker_detected_120hz(): f
+' Flag indicating flicker detected at 120Hz
+'   Returns: TRUE (-1) or FALSE (0)
+    f := 0
+    readreg(core.FD_STATUS, 1, @f)
+    return ( ((f >> core.FD_120HZ) & 1) == 1 )
+
+
 PUB flicker_detect_agc_enabled(en): c
 ' Use automatic gain control for the flicker detection engine
 '   en:
