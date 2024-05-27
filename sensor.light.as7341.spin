@@ -748,6 +748,18 @@ PUB sleep_after_int(en): c
         return ( ((c >> core.SAI) & 1) == 1 )
 
 
+CON
+
+    { SMUX commands }
+    SMUX_CMD_ROM_INIT   = 0
+    SMUX_CMD_READ       = 1
+    SMUX_CMD_WRITE      = 2
+
+
+VAR
+
+    byte _smux_state
+
 PUB smux_command(cmd): c
 ' Send SMUX command to device
 '   cmd:
@@ -758,9 +770,36 @@ PUB smux_command(cmd): c
     readreg(core.CFG6, 1, @c)
     case cmd
         0..2:
+            _smux_state := SMUX_CMD_WRITE       ' track the set command
             cmd := (c & core.SMUX_CMD_MASK) | (c << core.SMUX_CMD)
         other:
             return ((c >> core.SMUX_CMD) & core.SMUX_CMD_BITS)
+
+
+PUB smux_execute_cmd() | tmp
+' Executes the currently set SMUX command
+    tmp := 0
+    readreg(core.ENABLE, 1, @tmp)
+    tmp |= (1 << core.SMUXEN)
+    writereg(core.ENABLE, 1, @tmp)              ' execute the SMUX command
+
+    repeat                                      ' wait for the command to finish
+        tmp := 0
+        readreg(core.ENABLE, 1, @tmp)
+    while ( tmp & core.SMUXEN_SET )
+
+
+PUB smux_reg_write(r_nr, val)
+' Write to SMUX chain registers
+'   r_nr:   register number
+'   val:    value to write
+'   Returns: none
+    if ( _smux_state == SMUX_CMD_WRITE )        ' one layer of protection to make sure we're not
+        i2c.start()                             '   writing to the general registers
+        i2c.write(SLAVE_WR)
+        i2c.write(r_nr)
+        i2c.write(val)
+        i2c.stop()
 
 
 PUB spectral_agc_enabled(en): c

@@ -4,7 +4,7 @@
     Description:    AS7341-specific constants
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 26, 2024
+    Updated:        May 27, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -72,6 +72,7 @@ CON
         FDEN                    = 6
         FDEN_MASK               = (1 << FDEN) ^ ENABLE_MASK
         SMUXEN                  = 4
+        SMUXEN_SET              = (1 << SMUXEN)
         SMUXEN_MASK             = (1 << SMUXEN) ^ ENABLE_MASK
         WEN                     = 3
         WEN_MASK                = (1 << WEN) ^ ENABLE_MASK
