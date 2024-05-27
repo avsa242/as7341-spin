@@ -72,6 +72,23 @@ PUB defaults()
 ' Set factory defaults
 
 
+PUB preset_flicker_detection()
+' Preset settings: set up sensor for flicker detection
+    flicker_detect_enabled(false)
+    opmode(SP_MEASURE_DIS)
+    powered(false)
+
+    powered(true)
+
+    smux_command(SMUX_CMD_WRITE)
+    flicker_detect_smux_config()
+    smux_execute_cmd()
+
+    opmode(SP_MEASURE_EN)
+    flicker_detect_enabled(true)
+    time.msleep(500)
+
+
 PUB agc_gain(): g
 ' Get the gain level currently set by the AGC
 '   Returns: gain factor
@@ -408,6 +425,23 @@ PUB flicker_detect_saturated(): f
     readreg(core.FD_STATUS, 1, @f)
     return ( ((f >> core.FD_SAT) & 1) == 1 )
 
+
+PUB flicker_detect_smux_config() | r
+' Configure SMUX chain registers for flicker detection
+    repeat r from $00 to $12
+        smux_reg_write(r, $00)
+    smux_reg_write($13, $60)
+
+
+CON
+
+    { flicker detection status }
+    FD_MEAS_VALID       = (1 << 5)
+    FL_SATURATED        = (1 << 4)
+    FD_120HZ_VALID      = (1 << 3)
+    FD_100HZ_VALID      = (1 << 2)
+    FL_DETECTED_120HZ   = (1 << 1)
+    FL_DETECTED_100HZ   = (1 << 0)
 
 PUB flicker_detect_status(): f
 ' Get flicker detection overall status
