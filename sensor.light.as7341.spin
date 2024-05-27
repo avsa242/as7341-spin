@@ -4,7 +4,7 @@
     Description:    Driver for the ams AS7341 multi-spectral sensor
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 26, 2024
+    Updated:        May 27, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -407,6 +407,20 @@ PUB flicker_detect_saturated(): f
     f := 0
     readreg(core.FD_STATUS, 1, @f)
     return ( ((f >> core.FD_SAT) & 1) == 1 )
+
+
+PUB flicker_detect_status(): f
+' Get flicker detection overall status
+'   Returns: bitmask
+'       bit     description
+'       5       flicker detection measurement valid
+'       4       flicker saturation detected
+'       3       flicker detection 120Hz flicker valid
+'       2       flicker detection 100Hz flicker valid
+'       1       flicker detected at 120Hz
+'       0       flicker detected at 100Hz
+    f := 0
+    readreg(core.FD_STATUS, 1, @f)
 
 
 PUB flicker_detect_time(t=-2): c
