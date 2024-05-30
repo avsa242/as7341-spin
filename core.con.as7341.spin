@@ -4,7 +4,7 @@
     Description:    AS7341-specific constants
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 27, 2024
+    Updated:        May 30, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -162,7 +162,7 @@ CON
         SAI_MASK                = (1 << SAI) ^ CFG3_MASK
 
     CFG6                        = $af
-    CFG6_MASK                   = $38
+    CFG6_MASK                   = $18
         SMUX_CMD                = 3
         SMUX_CMD_BITS           = %11
         SMUX_CMD_MASK           = (SMUX_CMD_BITS << SMUX_CMD) ^ CFG6_MASK

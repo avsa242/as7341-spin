@@ -89,6 +89,22 @@ PUB preset_flicker_detection()
     time.msleep(500)
 
 
+PUB preset_f1f4_clear_nir() | n
+' Preset settings: photodiodes F1..F4, clear, NIR
+    powered(false)
+    powered(true)
+    smux_cfg_f1f4_clear_nir()
+    time.msleep(500)
+
+
+PUB preset_f5f8_clear_nir()
+' Preset settings: photodiodes F5..F8, clear, NIR
+    powered(false)
+    powered(true)
+    smux_cfg_f5f8_clear_nir()
+    time.msleep(500)
+
+
 PUB agc_gain(): g
 ' Get the gain level currently set by the AGC
 '   Returns: gain factor
@@ -720,14 +736,31 @@ VAR
     { structure:
         _light_data.byte[0]: undefined
         _light_data.byte[1]: ASTATUS1
-        _light_data.word[1]: CH0_DATA
-        _light_data.word[2]: CH1_DATA
-        _light_data.word[3]: CH2_DATA
-        _light_data.word[4]: CH3_DATA
-        _light_data.word[5]: CH4_DATA
-        _light_data.word[6]: CH5_DATA
+
+        _light_data.word[1]: CH1_DATA
+        _light_data.word[2]: CH2_DATA
+        _light_data.word[3]: CH3_DATA
+        _light_data.word[4]: CH4_DATA
+
+        _light_data.word[5]: CH5_DATA
+        _light_data.word[6]: CH6_DATA
+        _light_data.word[7]: CH7_DATA
+        _light_data.word[8]: CH8_DATA
+
+        _light_data.word[9]: CLEAR_DATA
+        _light_data.word[10]: NIR_DATA
+
     }
-    word _light_data[7]
+    word _light_data[13]
+
+
+PUB rgbw_data_all()
+' Read all spectral data
+    smux_cfg_f1f4_clear_nir()
+    readreg(core.ASTATUS1, 13, @_light_data+1)
+
+    smux_cfg_f5f8_clear_nir()
+    readreg(core.CH0_DATA, 12, @_light_data+14)
 
 
 PUB rgbw_data(ptr_d=0)
@@ -782,6 +815,64 @@ PUB sleep_after_int(en): c
         return ( ((c >> core.SAI) & 1) == 1 )
 
 
+PUB smux_cfg_f1f4_clear_nir()
+' Configure SMUX for photodiodes F1..F4, clear, NIR channels
+    opmode(SP_MEASURE_DIS)
+    smux_command(SMUX_CMD_WRITE)
+        smux_reg_write($00, $30)
+        smux_reg_write($01, $01)
+        smux_reg_write($02, $00)
+        smux_reg_write($03, $00)
+        smux_reg_write($04, $00)
+        smux_reg_write($05, $42)
+        smux_reg_write($06, $00)
+        smux_reg_write($07, $00)
+        smux_reg_write($08, $50)
+        smux_reg_write($09, $00)
+        smux_reg_write($0a, $00)
+        smux_reg_write($0b, $00)
+        smux_reg_write($0c, $20)
+        smux_reg_write($0d, $04)
+        smux_reg_write($0e, $00)
+        smux_reg_write($0f, $30)
+        smux_reg_write($10, $01)
+        smux_reg_write($11, $50)
+        smux_reg_write($12, $00)
+        smux_reg_write($13, $06)
+    smux_execute_cmd()
+    opmode(SP_MEASURE_EN)
+    time.msleep(300)
+
+
+PUB smux_cfg_f5f8_clear_nir()
+' Configure SMUX for photodiodes F5..F8, clear, NIR channels
+    opmode(SP_MEASURE_DIS)
+    smux_command(SMUX_CMD_WRITE)
+        smux_reg_write($00, $00)
+        smux_reg_write($01, $00)
+        smux_reg_write($02, $00)
+        smux_reg_write($03, $40)
+        smux_reg_write($04, $02)
+        smux_reg_write($05, $00)
+        smux_reg_write($06, $10)
+        smux_reg_write($07, $03)
+        smux_reg_write($08, $50)
+        smux_reg_write($09, $10)
+        smux_reg_write($0a, $03)
+        smux_reg_write($0b, $00)
+        smux_reg_write($0c, $00)
+        smux_reg_write($0d, $00)
+        smux_reg_write($0e, $24)
+        smux_reg_write($0f, $00)
+        smux_reg_write($10, $00)
+        smux_reg_write($11, $50)
+        smux_reg_write($12, $00)
+        smux_reg_write($13, $06)
+    smux_execute_cmd()
+    opmode(SP_MEASURE_EN)
+    time.msleep(300)
+
+
 CON
 
     { SMUX commands }
@@ -805,7 +896,8 @@ PUB smux_command(cmd): c
     case cmd
         0..2:
             _smux_state := SMUX_CMD_WRITE       ' track the set command
-            cmd := (c & core.SMUX_CMD_MASK) | (c << core.SMUX_CMD)
+            cmd := (c & core.SMUX_CMD_MASK) | (cmd << core.SMUX_CMD)
+            writereg(core.CFG6, 1, @cmd)
         other:
             return ((c >> core.SMUX_CMD) & core.SMUX_CMD_BITS)
 
