@@ -1,0 +1,4 @@
+To Adafruit for code reference; the AS7341 SMUX register configuration isn't documented, so this was invaluable for getting the driver working.
+Reference https://github.com/adafruit/Adafruit_AS7341/tree/master and product page https://www.adafruit.com/product/4698
+
+
