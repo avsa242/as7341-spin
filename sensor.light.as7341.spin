@@ -4,7 +4,7 @@
     Description:    Driver for the ams AS7341 multi-spectral sensor
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 27, 2024
+    Updated:        May 31, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -815,30 +815,23 @@ PUB sleep_after_int(en): c
         return ( ((c >> core.SAI) & 1) == 1 )
 
 
+DAT
+
+    { SMUX configuration binary blobs - 20 bytes starting at register $00 }
+    _smux_cfg_f1f4_clear_nir
+    byte $30, $01, $00, $00, $00, $42, $00, $00, $50, $00, $00, $00, $20, $04, $00, $30
+    byte $01, $50, $00, $06
+
+    _smux_cfg_f5f8_clear_nir
+    byte $00, $00, $00, $40, $02, $00, $10, $03, $50, $10, $03, $00, $00, $00, $24, $00
+    byte $00, $50, $00, $06
+
+
 PUB smux_cfg_f1f4_clear_nir()
 ' Configure SMUX for photodiodes F1..F4, clear, NIR channels
     opmode(SP_MEASURE_DIS)
     smux_command(SMUX_CMD_WRITE)
-        smux_reg_write($00, $30)
-        smux_reg_write($01, $01)
-        smux_reg_write($02, $00)
-        smux_reg_write($03, $00)
-        smux_reg_write($04, $00)
-        smux_reg_write($05, $42)
-        smux_reg_write($06, $00)
-        smux_reg_write($07, $00)
-        smux_reg_write($08, $50)
-        smux_reg_write($09, $00)
-        smux_reg_write($0a, $00)
-        smux_reg_write($0b, $00)
-        smux_reg_write($0c, $20)
-        smux_reg_write($0d, $04)
-        smux_reg_write($0e, $00)
-        smux_reg_write($0f, $30)
-        smux_reg_write($10, $01)
-        smux_reg_write($11, $50)
-        smux_reg_write($12, $00)
-        smux_reg_write($13, $06)
+        smux_wr_block(@_smux_cfg_f1f4_clear_nir)
     smux_execute_cmd()
     opmode(SP_MEASURE_EN)
     time.msleep(300)
@@ -848,26 +841,7 @@ PUB smux_cfg_f5f8_clear_nir()
 ' Configure SMUX for photodiodes F5..F8, clear, NIR channels
     opmode(SP_MEASURE_DIS)
     smux_command(SMUX_CMD_WRITE)
-        smux_reg_write($00, $00)
-        smux_reg_write($01, $00)
-        smux_reg_write($02, $00)
-        smux_reg_write($03, $40)
-        smux_reg_write($04, $02)
-        smux_reg_write($05, $00)
-        smux_reg_write($06, $10)
-        smux_reg_write($07, $03)
-        smux_reg_write($08, $50)
-        smux_reg_write($09, $10)
-        smux_reg_write($0a, $03)
-        smux_reg_write($0b, $00)
-        smux_reg_write($0c, $00)
-        smux_reg_write($0d, $00)
-        smux_reg_write($0e, $24)
-        smux_reg_write($0f, $00)
-        smux_reg_write($10, $00)
-        smux_reg_write($11, $50)
-        smux_reg_write($12, $00)
-        smux_reg_write($13, $06)
+        smux_wr_block(@_smux_cfg_f5f8_clear_nir)
     smux_execute_cmd()
     opmode(SP_MEASURE_EN)
     time.msleep(300)
@@ -926,6 +900,19 @@ PUB smux_reg_write(r_nr, val)
         i2c.write(r_nr)
         i2c.write(val)
         i2c.stop()
+
+
+PUB smux_wr_block(p_cfgblk)
+' Write a configuration block to the SMUX chain registers
+'   p_cfgblk: pointer to 20-byte block of data to write
+'   Returns: none
+    smux_command(SMUX_CMD_WRITE)                ' prep the sensor for writing to the SMUX regs
+        i2c.start()
+        i2c.write(SLAVE_WR)
+        i2c.write($00)                          ' starting with register $00,
+        i2c.wrblock_lsbf(p_cfgblk, 20)          '   write the block
+        i2c.stop()
+    smux_execute_cmd()
 
 
 PUB spectral_agc_enabled(en): c
