@@ -168,7 +168,7 @@ CON
         SMUX_CMD_MASK           = (SMUX_CMD_BITS << SMUX_CMD) ^ CFG6_MASK
 
     CFG8                        = $b1
-    CFG8_MASK                   = $8c
+    CFG8_MASK                   = $c4
         FIFO_TH                 = 6
         FIFO_TH_BITS            = %11
         FIFO_TH_MASK            = (FIFO_TH_BITS << FIFO_TH) ^ CFG8_MASK

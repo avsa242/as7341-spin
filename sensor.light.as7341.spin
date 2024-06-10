@@ -4,7 +4,7 @@
     Description:    Driver for the ams AS7341 multi-spectral sensor
     Author:         Jesse Burt
     Started:        May 20, 2024
-    Updated:        May 31, 2024
+    Updated:        Jun 10, 2024
     Copyright (c) 2024 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
@@ -260,7 +260,7 @@ PUB fifo_read(n, p_buff)
 '   n:      number of samples/entries to read
 '   p_buff: pointer to buffer to copy data to
 '   Returns: none
-    readreg(core.FDATA, n, p_buff)
+    readreg(core.FDATA, n*2, p_buff)
 
 
 PUB fifo_src(msk=-2): c | tmp
