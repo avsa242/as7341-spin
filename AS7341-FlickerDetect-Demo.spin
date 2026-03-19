@@ -7,23 +7,22 @@
         'Unknown' will be reported otherwise.
     Author:         Jesse Burt
     Started:        May 27, 2024
-    Updated:        May 27, 2024
-    Copyright (c) 2024 - See end of file for terms of use.
+    Updated:        Mar 19, 2026
+    Copyright (c) 2026 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
 
 CON
 
-    _clkmode    = cfg._clkmode
-    _xinfreq    = cfg._xinfreq
+    _clkmode    = xtal1+pll16x
+    _xinfreq    = 5_000_000
 
 
 OBJ
 
-    cfg:    "boardcfg.flip"
-    time:   "time"
     ser:    "com.serial.terminal.ansi" | SER_BAUD=115_200
     sensor: "sensor.light.as7341" | SCL=28, SDA=29, I2C_FREQ=400_000
+    time:   "time"
 
 
 PUB main() | s
@@ -34,7 +33,8 @@ PUB main() | s
 
     repeat
         s := sensor.flicker_detect_status()
-        repeat until (s & sensor.FD_MEAS_VALID) ' wait for a valid measurement flag
+        repeat
+        until (s & sensor.FD_MEAS_VALID)        ' wait for a valid measurement flag
         sensor.flicker_detect_clear()           '   and clear it for the next time around
         ser.pos_xy(0, 3)
         ser.str(@"Flicker frequency: ")         ' show the detected frequency, if known
@@ -59,11 +59,12 @@ PUB setup()
         ser.strln(@"AS7341 driver started")
     else
         ser.strln(@"AS7341 driver failed to start - halting")
+        repeat
 
 
 DAT
 {
-Copyright 2024 Jesse Burt
+Copyright 2026 Jesse Burt
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,

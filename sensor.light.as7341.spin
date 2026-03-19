@@ -5,7 +5,7 @@
     Author:         Jesse Burt
     Started:        May 20, 2024
     Updated:        Jun 10, 2024
-    Copyright (c) 2024 - See end of file for terms of use.
+    Copyright (c) 2026 - See end of file for terms of use.
 ----------------------------------------------------------------------------------------------------
 }
 
@@ -1152,7 +1152,7 @@ PRI writereg(reg_nr, nr_bytes, ptr_buff) | cmd_pkt
 
 DAT
 {
-Copyright 2024 Jesse Burt
+Copyright 2026 Jesse Burt
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
